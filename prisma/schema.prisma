@@ -1,10 +1,5 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Get a free hosted Postgres database in seconds: `npx create-db`
-
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "../app/generated/prisma"
 }
 
@@ -13,23 +8,60 @@ datasource db {
 }
 
 model PG {
-  id        String    @id @default(uuid())
+  id        String     @id @default(uuid())
   name      String
-  upiId     String    // The landlord's UPI ID
-  ownerId   String    // Your auth system user ID
+  upiId     String     // The landlord's UPI ID
+  ownerId   String     // Your auth system user ID
+  
   tenants   Tenant[]
+  roomTypes RoomType[]
+  roomUnits RoomUnit[] // Added for easier direct querying
+  payments  Payment[]  // Added for easier direct querying
+}
+
+model RoomType {
+  id        String     @id @default(uuid())   
+  name      String     // e.g., "2-Sharing Non-AC"
+  price     Float
+  capacity  Int        @default(2)   
+  
+  pgId      String
+  pg        PG         @relation(fields: [pgId], references: [id], onDelete: Cascade)
+  
+  units     RoomUnit[]
+}
+
+model RoomUnit {
+  id         String    @id @default(uuid())
+  roomNumber String    
+  
+  roomTypeId String    // RENAMED for clarity
+  roomType   RoomType  @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
+
+  pgId       String    // SAAS FIX: Direct link to PG
+  pg         PG        @relation(fields: [pgId], references: [id], onDelete: Cascade)
+
+  tenants    Tenant[]  
+  
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
 }
 
 model Tenant {
-  id                  String    @id @default(uuid())
-  name                String
-  phone               String
-  alternatePhone      String?
-  email               String?  
-  rent                Float
-  pgId                String
-  pg                  PG        @relation(fields: [pgId], references: [id])
-  payments            Payment[]
+  id             String    @id @default(uuid())
+  name           String
+  phone          String
+  alternatePhone String?
+  email          String?  
+  rent           Float
+  
+  pgId           String
+  pg             PG        @relation(fields: [pgId], references: [id])
+  
+  roomId         String?   
+  room           RoomUnit? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+  
+  payments       Payment[]
 }
 
 model Payment {
@@ -37,6 +69,13 @@ model Payment {
   amount    Float
   status    String    @default("PENDING") // PENDING, PAID
   dueDate   DateTime
+
   tenantId  String
   tenant    Tenant    @relation(fields: [tenantId], references: [id])
+
+  pgId      String    // SAAS FIX: Direct link to PG for easy P&L math
+  pg        PG        @relation(fields: [pgId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
 }
