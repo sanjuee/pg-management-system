@@ -10,5 +10,33 @@ generator client {
 
 datasource db {
   provider = "postgresql"
-  
+}
+
+model PG {
+  id        String    @id @default(uuid())
+  name      String
+  upiId     String    // The landlord's UPI ID
+  ownerId   String    // Your auth system user ID
+  tenants   Tenant[]
+}
+
+model Tenant {
+  id                  String    @id @default(uuid())
+  name                String
+  phone               String
+  alternatePhone      String?
+  email               String?  
+  rent                Float
+  pgId                String
+  pg                  PG        @relation(fields: [pgId], references: [id])
+  payments            Payment[]
+}
+
+model Payment {
+  id        String    @id @default(uuid())
+  amount    Float
+  status    String    @default("PENDING") // PENDING, PAID
+  dueDate   DateTime
+  tenantId  String
+  tenant    Tenant    @relation(fields: [tenantId], references: [id])
 }
