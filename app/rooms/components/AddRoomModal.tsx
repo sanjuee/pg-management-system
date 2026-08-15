@@ -34,22 +34,22 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
         {/* TAB SWITCHER */}
         <div className="flex border-b border-slate-100 bg-slate-50/30 p-2 gap-2">
           <button
-            onClick={() => setActiveTab("type")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition ${
-              activeTab === "type" ? "bg-white text-indigo-600 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <Layers size={16} />
-            1. Room Category
-          </button>
-          <button
             onClick={() => setActiveTab("unit")}
             className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition ${
               activeTab === "unit" ? "bg-white text-indigo-600 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-800"
             }`}
           >
             <Bed size={16} />
-            2. Physical Unit
+             Physical Unit
+          </button>
+          <button
+            onClick={() => setActiveTab("type")}
+            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition ${
+              activeTab === "type" ? "bg-white text-indigo-600 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-800"
+            }`}
+          >
+            <Layers size={16} />
+             Room Category
           </button>
         </div>
 
@@ -79,7 +79,7 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
                 </div>
               </div>
 
-              <button type="submit" className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-sm transition mt-2">
+              <button type="submit" className="w-full bg-indigo-800 hover:bg-indigo-900 text-white font-semibold py-3 rounded-xl shadow-sm transition mt-2">
                 Create Category
               </button>
             </form>
@@ -111,7 +111,7 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
               <button 
                 type="submit" 
                 disabled={roomTypes.length === 0}
-                className="w-full bg-slate-900 hover:bg-slate-800 text-white font-semibold py-3 rounded-xl shadow-sm transition mt-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full bg-indigo-600 hover:bg-indigo-800 text-white font-semibold py-3 rounded-xl shadow-sm transition mt-2 disabled:opacity-40 disabled:cursor-not-allowed"
               >
                 Deploy Room Unit
               </button>

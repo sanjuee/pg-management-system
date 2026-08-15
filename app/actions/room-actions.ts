@@ -22,7 +22,7 @@ export async function createRoomTypeAction(formData: FormData) {
   })
 
   // Refreshes the page data instantly
-  revalidatePath("/dashboard/rooms")
+  revalidatePath("/rooms")
 }
 
 // ------------------------------------------------------------------
@@ -50,5 +50,100 @@ export async function createRoomUnitAction(formData: FormData) {
     data: { pgId, roomTypeId, roomNumber }
   })
 
+  revalidatePath("/rooms")
+}
+
+
+// ------------------------------------------------------------------
+// 5. UPDATE: Edit a physical room unit
+// ------------------------------------------------------------------
+export async function updateRoomUnitAction(roomId: string, formData: FormData) {
+  const roomNumber = formData.get("roomNumber") as string
+  const roomTypeId = formData.get("roomTypeId") as string
+
+  await prisma.roomUnit.update({
+    where: { id: roomId },
+    data: { roomNumber, roomTypeId }
+  })
+
+  revalidatePath("/rooms")
+}
+
+// ------------------------------------------------------------------
+// 6. DELETE: Remove a physical room unit
+// ------------------------------------------------------------------
+export async function deleteRoomUnitAction(roomId: string) {
+  // Check if room has active tenants before deleting
+  const room = await prisma.roomUnit.findUnique({
+    where: { id: roomId },
+    include: { tenants: true }
+  })
+
+  if (room && room.tenants.length > 0) {
+    throw new Error("Cannot delete a room that has active tenants. Reassign them first.")
+  }
+
+  await prisma.roomUnit.delete({
+    where: { id: roomId }
+  })
+
+  revalidatePath("/rooms")
+}
+
+
+// ------------------------------------------------------------------
+// 7. UPDATE: Edit a Room Type (Category) with Safety Guardrails
+// ------------------------------------------------------------------
+// app/actions/room-actions.ts
+
+export async function updateRoomTypeAction(formData: FormData) {
+  const id = formData.get("id") as string
+  const name = formData.get("name") as string
+  const price = parseFloat(formData.get("price") as string)
+  const capacity = parseInt(formData.get("capacity") as string, 10)
+
+  const roomsOfType = await prisma.roomUnit.findMany({
+    where: { roomTypeId: id },
+    include: { _count: { select: { tenants: true } } }
+  })
+
+  const maxCurrentOccupancy = roomsOfType.reduce((max, room) => {
+    return room._count.tenants > max ? room._count.tenants : max
+  }, 0)
+
+  if (capacity < maxCurrentOccupancy) {
+    return {
+      success: false,
+      error: `Cannot lower capacity to ${capacity}. One of your physical rooms in this category already has ${maxCurrentOccupancy} tenants living in it.`
+    }
+  }
+
+  await prisma.roomType.update({
+    where: { id },
+    data: { name, price, capacity }
+  })
+
   revalidatePath("/dashboard/rooms")
+  return { success: true } // ✅ Let the client know it worked!
+}
+
+
+// ------------------------------------------------------------------
+// 8. DELETE: Remove a Room Type (Category)
+// ------------------------------------------------------------------
+export async function deleteRoomTypeAction(id: string) {
+  // SAFETY CHECK: Are there any physical rooms using this category?
+  const linkedRooms = await prisma.roomUnit.count({
+    where: { roomTypeId: id }
+  })
+
+  if (linkedRooms > 0) {
+    throw new Error(`Cannot delete this category because ${linkedRooms} physical room(s) are using it. Reassign them first.`)
+  }
+
+  await prisma.roomType.delete({
+    where: { id }
+  })
+
+  revalidatePath("/rooms")
 }

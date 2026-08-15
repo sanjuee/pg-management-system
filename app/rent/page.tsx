@@ -1,22 +1,24 @@
 // app/dashboard/rent/page.tsx
-import { prisma } from "@/lib/prisma"
+import { getRentLedgerData } from "@/app/queries/tenant-queries"
+import { getAvailableRoomsList } from "@/app/queries/room-queries"
 import RentLedgerTable from "./components/RentLedgerTable"
-
-// A dummy action to simulate fetching rent data for the UI
-async function getRentData(pgId: string) {
-  // In a real app, this queries your Prisma database:
-  // return await prisma.tenant.findMany({ where: { pgId }, include: { room: true, payments: true } })
-  
-  return [
-    { id: "1", name: "Rahul Sharma", room: "101", amount: 8000, dueDate: "2023-10-01", status: "Paid", phone: "9876543210" },
-    { id: "2", name: "Priya Patel", room: "204", amount: 7500, dueDate: "2023-10-05", status: "Pending", phone: "9123456789" },
-    { id: "3", name: "Amit Kumar", room: "312", amount: 8500, dueDate: "2023-09-01", status: "Overdue", phone: "9988776655" },
-    { id: "4", name: "Sneha Reddy", room: "105", amount: 8000, dueDate: "2023-10-01", status: "Paid", phone: "9898989898" },
-  ]
-}
+import { TriangleAlert } from "lucide-react"
 
 export default async function RentPage() {
-  const tenants = await getRentData("YOUR_PG_ID")
+  const CURRENT_PG_ID = "4f3c2b81-9d11-4a5e-b287-73c09r3e4b1a" // Use the ID you generated in Prisma Studio
+
+  // Fetch real data from the database
+  const tenants = await getRentLedgerData(CURRENT_PG_ID)
+  const availableRooms = await getAvailableRoomsList(CURRENT_PG_ID)
+
+  // Dynamically calculate the summary statistics
+  const totalCollected = tenants.filter(t => t.status === 'Paid').reduce((sum, t) => sum + t.amount, 0)
+  
+  const pendingTenants = tenants.filter(t => t.status === 'Pending')
+  const pendingAmount = pendingTenants.reduce((sum, t) => sum + t.amount, 0)
+  
+  const overdueTenants = tenants.filter(t => t.status === 'Overdue')
+  const overdueAmount = overdueTenants.reduce((sum, t) => sum + t.amount, 0)
 
   return (
     <div className="p-4 md:p-8 space-y-8 bg-gray-50 min-h-screen">
@@ -38,34 +40,40 @@ export default async function RentPage() {
         </div>
       </div>
 
-      {/* Summary Cards */}
+      {/* Dynamic Summary Cards */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
           <p className="text-sm text-gray-500 font-medium mb-1">Total Collected (This Month)</p>
-          <h2 className="text-3xl font-black text-gray-900">₹84,500</h2>
-          <p className="text-sm text-green-600 font-medium mt-2 flex items-center gap-1">
-            ↑ +5% vs last month
+          <h2 className="text-3xl font-black text-gray-900">₹{totalCollected.toLocaleString('en-IN')}</h2>
+          <p className="text-sm text-gray-400 font-medium mt-2">
+            Updated just now
           </p>
         </div>
         
         <div className="bg-white p-6 rounded-2xl border border-gray-200 shadow-sm">
           <p className="text-sm text-gray-500 font-medium mb-1">Pending Payments</p>
-          <h2 className="text-3xl font-black text-gray-900">₹15,000</h2>
-          <p className="text-sm text-gray-500 font-medium mt-2">From 2 tenants</p>
+          <h2 className="text-3xl font-black text-gray-900">₹{pendingAmount.toLocaleString('en-IN')}</h2>
+          <p className="text-sm text-gray-500 font-medium mt-2">From {pendingTenants.length} tenants</p>
         </div>
 
         <div className="bg-white p-6 rounded-2xl border border-red-200 shadow-sm relative overflow-hidden">
           <div className="absolute top-0 left-0 w-1 h-full bg-red-500"></div>
-          <p className="text-sm text-red-600 font-bold mb-1 flex items-center gap-2">
-            <span>⚠️</span> Overdue Rent
+          <div className="text-lg text-red-600 font-bold mb-1 flex items-center gap-2">
+            <TriangleAlert/> Overdue Rent
+          </div>
+          <h2 className="text-3xl font-black text-gray-900">₹{overdueAmount.toLocaleString('en-IN')}</h2>
+          <p className="text-sm text-red-500 font-medium mt-2">
+            {overdueTenants.length > 0 ? `Requires immediate action (${overdueTenants.length})` : "All caught up!"}
           </p>
-          <h2 className="text-3xl font-black text-gray-900">₹8,500</h2>
-          <p className="text-sm text-red-500 font-medium mt-2">Requires immediate action (1 tenant)</p>
         </div>
       </div>
 
       {/* The Interactive Table Component */}
-      <RentLedgerTable initialData={tenants}  />
+      <RentLedgerTable 
+        initialData={tenants} 
+        availableRooms={availableRooms} 
+        pgId={CURRENT_PG_ID} 
+      />
     </div>
   )
 }

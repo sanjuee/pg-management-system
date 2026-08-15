@@ -7,6 +7,7 @@ import {
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation' 
+import { Toaster } from 'react-hot-toast'
 
 export default function ClientLayout({ 
   children,
@@ -155,6 +156,19 @@ export default function ClientLayout({
 
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 overflow-y-auto pt-16 lg:pt-0 w-full relative z-0 bg-white">
+        <Toaster 
+          position="bottom-right"
+          toastOptions={{
+            duration: 6000,
+            style: {
+              background: '#333',
+              color: '#fff',
+              borderRadius: '10px',
+              fontSize: '14px',
+              fontWeight: '500'
+            },
+          }} 
+        />
         {children}
       </main>
 
