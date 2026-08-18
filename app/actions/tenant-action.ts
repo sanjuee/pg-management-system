@@ -51,3 +51,25 @@ export async function assignExistingTenantAction(tenantId: string, roomId: strin
   revalidatePath("/rent")
 }
 
+export async function updateTenantDetailsAction(tenantId: string, formData: FormData) {
+  const name = formData.get("name") as string;
+  const phone = formData.get("phone") as string;
+  const rent = parseFloat(formData.get("rent") as string);
+
+  if (!name || !phone || isNaN(rent)) {
+    return { success: false, error: "All fields are required." };
+  }
+
+  try {
+    await prisma.tenant.update({
+      where: { id: tenantId },
+      data: { name, phone, rent }
+    });
+
+    revalidatePath("/dashboard/rent");
+    revalidatePath("/dashboard/rooms");
+    return { success: true };
+  } catch (error) {
+    return { success: false, error: "Failed to update tenant details." };
+  }
+}
