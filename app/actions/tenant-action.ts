@@ -27,3 +27,27 @@ export async function createTenantAction(formData: FormData) {
   revalidatePath("/rent")
   revalidatePath("/rooms")
 }
+
+export async function unassignTenantAction(tenantId: string) {
+  await prisma.tenant.update({
+    where: { id: tenantId },
+    data: { roomId: null }
+  })
+
+  // Refresh both pages to reflect the vacancy
+  revalidatePath("/rooms")
+  revalidatePath("/rent")
+}
+
+export async function assignExistingTenantAction(tenantId: string, roomId: string) {
+  if (!tenantId || !roomId) throw new Error("Missing tenant or room ID");
+
+  await prisma.tenant.update({
+    where: { id: tenantId },
+    data: { roomId }
+  })
+
+  revalidatePath("/rooms")
+  revalidatePath("/rent")
+}
+

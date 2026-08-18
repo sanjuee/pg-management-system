@@ -1,6 +1,6 @@
 "use client"
 
-import { createTenantAction } from "../actions/tenant-queries" // Make sure this matches your file name
+import { createTenantAction } from "../actions/tenant-action" // Make sure this matches your file name
 import { X, UserPlus } from "lucide-react"
 
 type AddTenantModalProps = {

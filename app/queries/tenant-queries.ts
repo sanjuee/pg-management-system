@@ -1,4 +1,3 @@
-// app/queries/tenant-queries.ts
 import { prisma } from "@/lib/prisma"
 
 export async function getRentLedgerData(pgId: string) {
@@ -21,4 +20,14 @@ export async function getRentLedgerData(pgId: string) {
     status: "Pending", // Default for now until we build the payment update logic
     phone: tenant.phone
   }))
+}
+
+export async function getUnassignedTenantsList(pgId: string) {
+  return await prisma.tenant.findMany({
+    where: { 
+      pgId, 
+      roomId: null // Only fetch people without a room
+    },
+    select: { id: true, name: true, phone: true }
+  })
 }

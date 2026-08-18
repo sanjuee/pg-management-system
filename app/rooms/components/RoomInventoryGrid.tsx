@@ -22,12 +22,15 @@ type RoomItem = {
 type RoomInventoryGridProps = {
   initialRooms: RoomItem[];
   roomTypes: any[];
+  unassignedTenants: { id: string; name: string; phone: string }[]; 
   pgId: string;
 };
 
+// 2. ADD IT TO THE DESTRUCTURED ARGUMENTS OF THE EXPORT FUNCTION
 export default function RoomInventoryGrid({
   initialRooms,
   roomTypes,
+  unassignedTenants, 
   pgId,
 }: RoomInventoryGridProps) {
   const [statusFilter, setStatusFilter] = useState<string>("All Statuses");
@@ -186,7 +189,9 @@ export default function RoomInventoryGrid({
         isOpen={!!selectedRoom && !isAddTenantOpen}
         onClose={() => setSelectedRoom(null)}
         room={selectedRoom}
-        onAddTenant={() => setIsAddTenantOpen(true)} // Opens the Add Tenant modal
+        roomTypes={roomTypes}
+        unassignedTenants={unassignedTenants} // <--- Pass it into the modal
+        onAddTenant={() => setIsAddTenantOpen(true)}
       />
 
       {/* 3. The Unified Add Tenant Modal (Pre-filled with selected room) */}

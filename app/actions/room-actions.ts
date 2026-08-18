@@ -61,12 +61,36 @@ export async function updateRoomUnitAction(roomId: string, formData: FormData) {
   const roomNumber = formData.get("roomNumber") as string
   const roomTypeId = formData.get("roomTypeId") as string
 
+  const currentRoom = await prisma.roomUnit.findUnique({
+    where: { id: roomId },
+    include: {
+      _count: {
+        select: { tenants: true }
+      }
+    }
+  })
+
+  const targetCategory = await prisma.roomType.findUnique({
+    where: { id: roomTypeId }
+  })
+
+  const currentOccupancy = currentRoom?._count.tenants || 0
+  const targetCapacity = targetCategory?.capacity || 0
+
+  if (targetCapacity < currentOccupancy) {
+    return {
+      success: false,
+      error: `Cannot switch to this category. Room currently has ${currentOccupancy} living occupants, but the chosen category layout only permits a maximum of ${targetCapacity} beds.`
+    }
+  }
+
   await prisma.roomUnit.update({
     where: { id: roomId },
     data: { roomNumber, roomTypeId }
   })
 
   revalidatePath("/rooms")
+  return { success: true }
 }
 
 // ------------------------------------------------------------------

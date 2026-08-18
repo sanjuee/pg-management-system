@@ -1,7 +1,6 @@
 "use client"
 
 export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, onClose: () => void }) {
-  // Close when clicking outside the modal content
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget) {
       onClose()
