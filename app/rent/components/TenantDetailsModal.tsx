@@ -1,4 +1,3 @@
-// app/dashboard/rent/components/TenantDetailsModal.tsx
 "use client"
 
 import { useState } from "react"
@@ -41,7 +40,7 @@ export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, o
           {/* Modal Header */}
           <div className="p-6 border-b border-gray-100 flex justify-between items-start bg-gray-50/50">
             <div className="flex items-center gap-4">
-              <div className="w-16 h-16 rounded-full bg-indigo-100 text-indigo-700 flex items-center justify-center text-2xl font-black shrink-0">
+              <div className="w-16 h-16 rounded-full bg-green-100 text-green-700 flex items-center justify-center text-2xl font-black shrink-0">
                 {tenant.name.split(' ').map((n: string) => n[0]).join('').substring(0, 2)}
               </div>
               <div className="w-full">

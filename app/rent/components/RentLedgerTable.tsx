@@ -193,7 +193,7 @@ export default function RentLedgerTable({ filteredData, searchTerm, setSearchTer
                   className={`border-b border-gray-50 hover:bg-gray-50 cursor-pointer transition ${tenant.status === 'Overdue' ? 'bg-red-50/20' : ''}`}
                 >
                   <td className="p-4 pl-6 flex items-center gap-3">
-                    <div className="w-10 h-10 rounded-full bg-indigo-600 text-white flex items-center justify-center font-bold text-sm">
+                    <div className="w-10 h-10 rounded-full bg-green-100 text-green-600 flex items-center justify-center font-bold text-sm">
                       {getInitials(tenant.name)}
                     </div>
                     <span className="font-semibold text-gray-900">{tenant.name}</span>
