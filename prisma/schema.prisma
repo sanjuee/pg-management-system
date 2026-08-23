@@ -7,16 +7,62 @@ datasource db {
   provider = "postgresql"
 }
 
+enum PaymentStatus {
+  PENDING
+  PARTIAL
+  PAID
+  OVERDUE
+}
+
 model PG {
-  id        String     @id @default(uuid())
-  name      String
-  upiId     String     // The landlord's UPI ID
-  ownerId   String     // Your auth system user ID
+  id               String     @id @default(uuid())
+  name             String
+  upiId            String     // The landlord's UPI ID
+  ownerId          String     // Your auth system user ID
   
-  tenants   Tenant[]
-  roomTypes RoomType[]
-  roomUnits RoomUnit[] // Added for easier direct querying
-  payments  Payment[]  // Added for easier direct querying
+  // Billing Engine
+  billingCycleDate Int        @default(1)  
+  rentDueDate      Int        @default(5)  
+  dailyLateFee     Float      @default(50) 
+  
+  tenants          Tenant[]
+  invoices         Invoice[]  
+  roomTypes        RoomType[]
+  roomUnits        RoomUnit[] 
+}
+
+model Invoice {
+  id              String   @id @default(uuid())
+  billingMonth    String   // e.g., "August 2026"
+  baseRent        Float
+  accumulatedFine Float    @default(0) 
+  totalAmount     Float    // baseRent + accumulatedFine
+  amountPaid      Float    @default(0) 
+  
+  status          PaymentStatus   @default(PENDING)
+  dueDate         DateTime 
+
+  tenantId        String
+  tenant          Tenant   @relation(fields: [tenantId], references: [id])
+  
+  pgId            String
+  pg              PG       @relation(fields: [pgId], references: [id])
+
+  transactions    Transaction[] 
+  
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+}
+
+model Transaction {
+  id            String   @id @default(uuid())
+  amount        Float    
+  paymentMethod String   // UPI, CASH, BANK TRANSFER
+  dateReceived  DateTime @default(now())
+  referenceId   String?  // Optional: For UPI Transaction IDs
+
+  invoiceId     String
+  invoice       Invoice  @relation(fields: [invoiceId], references: [id], onDelete: Cascade)
 }
 
 model RoomType {
@@ -35,7 +81,7 @@ model RoomUnit {
   id         String    @id @default(uuid())
   roomNumber String    
   
-  roomTypeId String    // RENAMED for clarity
+  roomTypeId String    
   roomType   RoomType  @relation(fields: [roomTypeId], references: [id], onDelete: Cascade)
 
   pgId       String    // SAAS FIX: Direct link to PG
@@ -61,24 +107,9 @@ model Tenant {
   roomId         String?   
   room           RoomUnit? @relation(fields: [roomId], references: [id], onDelete: SetNull)
   
-  payments       Payment[]
+  invoices       Invoice[] // Linked to the new billing engine
 
-  createdAt  DateTime  @default(now())
-  updatedAt  DateTime  @updatedAt
+  createdAt      DateTime  @default(now())
+  updatedAt      DateTime  @updatedAt
 }
 
-model Payment {
-  id        String    @id @default(uuid())
-  amount    Float
-  status    String    @default("PENDING") // PENDING, PAID
-  dueDate   DateTime
-
-  tenantId  String
-  tenant    Tenant    @relation(fields: [tenantId], references: [id])
-
-  pgId      String    // SAAS FIX: Direct link to PG for easy P&L math
-  pg        PG        @relation(fields: [pgId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime  @default(now())
-  updatedAt DateTime  @updatedAt
-}

@@ -14,15 +14,27 @@ export async function createTenantAction(formData: FormData) {
     throw new Error("Missing required fields for Tenant")
   }
 
-  await prisma.tenant.create({
-    data: {
-      pgId,
-      name,
-      phone,
-      rent,
-      ...(roomId ? { roomId } : {})
+  const newTenant = await prisma.tenant.create({
+  data: {
+    name,
+    phone,
+    rent,
+    pgId: pgId,
+    roomId: roomId || null,
+    
+    // 👇 NEW: Generate their very first invoice instantly 👇
+    invoices: {
+      create: {
+        billingMonth: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+        baseRent: rent,
+        totalAmount: rent, // baseRent + 0 fines
+        status: "PENDING",
+        dueDate: new Date(new Date().getFullYear(), new Date().getMonth(), 5), // Sets due date to the 5th
+        pgId: pgId
+      }
     }
-  })
+  }
+})
 
   revalidatePath("/rent")
   revalidatePath("/rooms")
@@ -73,3 +85,4 @@ export async function updateTenantDetailsAction(tenantId: string, formData: Form
     return { success: false, error: "Failed to update tenant details." };
   }
 }
+

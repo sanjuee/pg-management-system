@@ -2,10 +2,21 @@
 
 import { useState } from "react"
 import { Edit2, X, Save } from "lucide-react"
-import { updateTenantDetailsAction } from "@/app/actions/tenant-action"
-import toast from "react-hot-toast"
 
-export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, onClose: () => void }) {
+import toast from "react-hot-toast"
+import { updateTenantDetailsAction } from "@/app/actions/tenant-action"
+
+type TenantDetailsModalProps = {
+  tenant: any
+  onClose: () => void
+  onRecordPayment: (tenant: any) => void // Handler to trigger the payment modal
+}
+
+export default function TenantDetailsModal({ 
+  tenant, 
+  onClose, 
+  onRecordPayment 
+}: TenantDetailsModalProps) {
   const [isEditing, setIsEditing] = useState(false)
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -14,18 +25,19 @@ export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, o
     }
   }
 
-  // Form submission handler
   const handleSave = async (formData: FormData) => {
-    const result = await updateTenantDetailsAction(tenant.id, formData)
+    const result = await updateTenantDetailsAction(tenant.tenantId || tenant.id, formData)
     
     if (result?.success === false) {
       toast.error(result.error || "Failed to update tenant")
     } else {
       toast.success("Tenant details updated!")
       setIsEditing(false)
-      // Note: Next.js will auto-refresh the data behind the modal
     }
   }
+
+  // Calculate the remaining balance
+  const remainingBalance = (tenant.amount || 0) - (tenant.amountPaid || 0)
 
   return (
     <div 
@@ -34,9 +46,7 @@ export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, o
     >
       <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         
-        {/* We wrap the content in a form so we can use Next.js Server Actions directly */}
         <form action={handleSave}>
-          
           {/* Modal Header */}
           <div className="p-6 border-b border-gray-100 flex justify-between items-start bg-gray-50/50">
             <div className="flex items-center gap-4">
@@ -58,14 +68,22 @@ export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, o
               </div>
             </div>
             
-            {/* Action Icons Top Right */}
+            {/* Action Icons */}
             <div className="flex items-center gap-1">
               {!isEditing && (
-                <button type="button" onClick={() => setIsEditing(true)} className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-full transition">
+                <button 
+                  type="button" 
+                  onClick={() => setIsEditing(true)} 
+                  className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-full transition"
+                >
                   <Edit2 size={18} />
                 </button>
               )}
-              <button type="button" onClick={onClose} className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-2 rounded-full transition">
+              <button 
+                type="button" 
+                onClick={onClose} 
+                className="text-gray-400 hover:text-gray-700 hover:bg-gray-100 p-2 rounded-full transition"
+              >
                 <X size={20} />
               </button>
             </div>
@@ -90,44 +108,53 @@ export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, o
               </div>
               
               <div className="bg-gray-50 p-3 rounded-lg border border-transparent focus-within:border-indigo-200 transition-colors">
-                <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Rent Amount (₹)</p>
+                <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Base Rent (₹)</p>
                 {isEditing ? (
                   <input 
                     name="rent" 
                     type="number"
-                    defaultValue={tenant.amount} 
+                    defaultValue={tenant.baseRent || tenant.amount} 
                     required
                     className="w-full font-bold text-gray-900 bg-white border border-gray-300 rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 ) : (
-                  <p className="font-bold text-gray-900">₹{tenant.amount.toLocaleString('en-IN')}/mo</p>
+                  <p className="font-bold text-gray-900">₹{(tenant.baseRent || tenant.amount).toLocaleString('en-IN')}/mo</p>
                 )}
               </div>
             </div>
 
             <div className="border border-gray-200 rounded-xl p-4 bg-white shadow-sm">
               <h4 className="font-semibold text-gray-800 mb-3 text-sm uppercase tracking-wider">Current Payment Status</h4>
+              
               <div className="flex justify-between items-center mb-3">
                 <span className="text-gray-600 text-sm font-medium">Due Date:</span>
                 <span className="font-bold text-gray-900">{tenant.dueDate}</span>
               </div>
-              <div className="flex justify-between items-center">
+              
+              <div className="flex justify-between items-center mb-3">
                 <span className="text-gray-600 text-sm font-medium">Status:</span>
                 <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                  tenant.status === 'Paid' ? 'bg-green-100 text-green-700' :
-                  tenant.status === 'Overdue' ? 'bg-red-100 text-red-700' :
+                  tenant.status === 'PAID' ? 'bg-green-100 text-green-700' :
+                  tenant.status === 'OVERDUE' ? 'bg-red-100 text-red-700' :
+                  tenant.status === 'PARTIAL' ? 'bg-yellow-100 text-yellow-700' :
                   'bg-gray-100 text-gray-700'
                 }`}>
                   {tenant.status}
                 </span>
               </div>
+
+              {(tenant.status === 'PARTIAL' || tenant.status === 'OVERDUE' || tenant.status === 'PENDING') && (
+                <div className="flex justify-between items-center pt-3 border-t border-gray-100">
+                  <span className="text-gray-900 text-sm font-bold">Remaining Balance:</span>
+                  <span className="font-black text-red-600">₹{remainingBalance.toLocaleString('en-IN')}</span>
+                </div>
+              )}
             </div>
           </div>
 
           {/* Modal Footer Actions */}
           <div className="p-4 bg-gray-50 border-t border-gray-100 flex gap-3">
             {isEditing ? (
-              // EDIT MODE BUTTONS
               <>
                 <button 
                   type="button"
@@ -144,7 +171,6 @@ export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, o
                 </button>
               </>
             ) : (
-              // READ MODE BUTTONS
               <>
                 <button 
                   type="button"
@@ -154,9 +180,10 @@ export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, o
                   WhatsApp
                 </button>
                 
-                {tenant.status !== 'Paid' && (
+                {tenant.status !== 'PAID' && (
                   <button 
                     type="button"
+                    onClick={() => onRecordPayment(tenant)}
                     className="flex-1 px-4 py-2.5 bg-indigo-700 text-white rounded-xl text-sm font-semibold hover:bg-indigo-900 shadow-sm transition"
                   >
                     Mark as Paid
@@ -166,7 +193,6 @@ export default function TenantDetailsModal({ tenant, onClose }: { tenant: any, o
             )}
           </div>
         </form>
-
       </div>
     </div>
   )

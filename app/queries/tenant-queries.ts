@@ -1,24 +1,30 @@
 import { prisma } from "@/lib/prisma"
 
 export async function getRentLedgerData(pgId: string) {
-  const tenants = await prisma.tenant.findMany({
+  // 1. Fetch all invoices for the PG
+  const invoices = await prisma.invoice.findMany({
     where: { pgId },
-    include: { room: true },
-    orderBy: { createdAt: 'desc' }
+    include: { 
+      tenant: {
+        include: { room: true } // Fetch room details to display room number
+      }
+    },
+    orderBy: { dueDate: 'asc' }
   })
 
-  // Format dates to look nice (e.g., "1 Oct 2026")
-  const currentMonthStart = new Date(new Date().getFullYear(), new Date().getMonth(), 1)
-  const formattedDate = currentMonthStart.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' })
-
-  return tenants.map(tenant => ({
-    id: tenant.id,
-    name: tenant.name,
-    room: tenant.room ? tenant.room.roomNumber : "Unassigned",
-    amount: tenant.rent,
-    dueDate: formattedDate,
-    status: "Pending", // Default for now until we build the payment update logic
-    phone: tenant.phone
+  // 2. Map them into the flat structure your UI Table expects
+  return invoices.map((inv) => ({
+    id: inv.id, // IMPORTANT: This is now the INVOICE ID, not the tenant ID
+    tenantId: inv.tenant.id,
+    name: inv.tenant.name,
+    room: inv.tenant.room?.roomNumber || "Unassigned",
+    amount: inv.totalAmount,         // Total they owe
+    amountPaid: inv.amountPaid,      // How much they've paid so far
+    baseRent: inv.baseRent,
+    accumulatedFine: inv.accumulatedFine,
+    dueDate: inv.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
+    status: inv.status,              // "PENDING", "PARTIAL", "PAID", "OVERDUE"
+    phone: inv.tenant.phone
   }))
 }
 
@@ -31,3 +37,5 @@ export async function getUnassignedTenantsList(pgId: string) {
     select: { id: true, name: true, phone: true }
   })
 }
+
+
