@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-import AddTenantModal from "./AddTenantButton"; // Imports your exact modal
+import AddTenantModal from "@/app/components/AddTenantModal"; // Imports your exact modal
 
 type RentAddTenantWrapperProps = {
   pgId: string;
