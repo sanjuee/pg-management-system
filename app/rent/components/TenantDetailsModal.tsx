@@ -1,15 +1,15 @@
 "use client"
 
 import { useState } from "react"
-import { Edit2, X, Save } from "lucide-react"
+import { Edit2, X, Save, Trash2, Loader2 } from "lucide-react"
 
 import toast from "react-hot-toast"
-import { updateTenantDetailsAction } from "@/app/actions/tenant-action"
+import { updateTenantDetailsAction, deleteTenantAction } from "@/app/actions/tenant-action"
 
 type TenantDetailsModalProps = {
   tenant: any
   onClose: () => void
-  onRecordPayment: (tenant: any) => void // Handler to trigger the payment modal
+  onRecordPayment: (tenant: any) => void
 }
 
 export default function TenantDetailsModal({ 
@@ -18,6 +18,7 @@ export default function TenantDetailsModal({
   onRecordPayment 
 }: TenantDetailsModalProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [isDeleting, setIsDeleting] = useState(false)
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget && !isEditing) {
@@ -33,6 +34,26 @@ export default function TenantDetailsModal({
     } else {
       toast.success("Tenant details updated!")
       setIsEditing(false)
+    }
+  }
+
+  const handleDelete = async () => {
+    const tenantId = tenant.tenantId || tenant.id
+    if (!confirm(`Are you sure you want to delete ${tenant.name}? This action cannot be undone.`)) {
+      return
+    }
+
+    setIsDeleting(true)
+    const toastId = toast.loading("Deleting tenant...")
+
+    try {
+      await deleteTenantAction(tenantId)
+      toast.success("Tenant deleted successfully!", { id: toastId })
+      onClose()
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete tenant", { id: toastId })
+    } finally {
+      setIsDeleting(false)
     }
   }
 
@@ -71,13 +92,25 @@ export default function TenantDetailsModal({
             {/* Action Icons */}
             <div className="flex items-center gap-1">
               {!isEditing && (
-                <button 
-                  type="button" 
-                  onClick={() => setIsEditing(true)} 
-                  className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-full transition"
-                >
-                  <Edit2 size={18} />
-                </button>
+                <>
+                  <button 
+                    type="button" 
+                    onClick={() => setIsEditing(true)} 
+                    className="text-gray-400 hover:text-indigo-600 hover:bg-indigo-50 p-2 rounded-full transition"
+                    title="Edit Details"
+                  >
+                    <Edit2 size={18} />
+                  </button>
+                  <button 
+                    type="button" 
+                    onClick={handleDelete}
+                    disabled={isDeleting}
+                    className="text-gray-400 hover:text-red-600 hover:bg-red-50 p-2 rounded-full transition"
+                    title="Delete Tenant"
+                  >
+                    {isDeleting ? <Loader2 size={18} className="animate-spin text-red-600" /> : <Trash2 size={18} />}
+                  </button>
+                </>
               )}
               <button 
                 type="button" 

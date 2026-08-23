@@ -78,11 +78,27 @@ export async function updateTenantDetailsAction(tenantId: string, formData: Form
       data: { name, phone, rent }
     });
 
-    revalidatePath("/dashboard/rent");
-    revalidatePath("/dashboard/rooms");
+    revalidatePath("/rent");
+    revalidatePath("/rooms");
     return { success: true };
   } catch (error) {
     return { success: false, error: "Failed to update tenant details." };
   }
 }
+
+export async function deleteTenantAction(tenantId: string) {
+      if (!tenantId) throw new Error("Tenant ID is required");
+
+      try {
+        await prisma.tenant.delete({
+          where: { id: tenantId }
+        });
+
+        revalidatePath("/rent");
+        revalidatePath("/rooms");
+        return { success: true };
+      } catch (error) {
+        return { success: false, error: "Failed to delete tenant." };
+      }
+    }
 

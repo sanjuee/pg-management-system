@@ -9,7 +9,9 @@ export async function getRentLedgerData(pgId: string) {
         include: { room: true } // Fetch room details to display room number
       }
     },
-    orderBy: { dueDate: 'asc' }
+    orderBy: [
+      { status: "desc" }, // PENDING > PARTIAL > PAID > OVERDUE (alphabetically reversed)
+    ]
   })
 
   // 2. Map them into the flat structure your UI Table expects
