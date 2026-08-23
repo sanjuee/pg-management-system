@@ -8,26 +8,42 @@ export async function getRentLedgerData(pgId: string) {
       tenant: {
         include: { room: true } // Fetch room details to display room number
       }
-    },
-    orderBy: [
-      { status: "desc" }, // PENDING > PARTIAL > PAID > OVERDUE (alphabetically reversed)
-    ]
-  })
+    }
+  });
 
-  // 2. Map them into the flat structure your UI Table expects
-  return invoices.map((inv) => ({
-    id: inv.id, // IMPORTANT: This is now the INVOICE ID, not the tenant ID
+  // 2. Define your custom sort priority map
+  const statusPriority: Record<string, number> = {
+    OVERDUE: 1,
+    PENDING: 2,
+    PARTIAL: 3,
+    PAID: 4,
+  };
+
+  // 3. Sort the array using JavaScript based on the priority map
+  const sortedInvoices = invoices.sort((a, b) => {
+    const priorityA = statusPriority[a.status?.toUpperCase()] || 99;
+    const priorityB = statusPriority[b.status?.toUpperCase()] || 99;
+    return priorityA - priorityB;
+  });
+
+  // 4. Map the sorted invoices to your table's expected format
+  return sortedInvoices.map(inv => ({
+    id: inv.id,
     tenantId: inv.tenant.id,
     name: inv.tenant.name,
+    phone: inv.tenant.phone,
     room: inv.tenant.room?.roomNumber || "Unassigned",
-    amount: inv.totalAmount,         // Total they owe
-    amountPaid: inv.amountPaid,      // How much they've paid so far
+    amount: inv.totalAmount,
+    amountPaid: inv.amountPaid,
     baseRent: inv.baseRent,
     accumulatedFine: inv.accumulatedFine,
-    dueDate: inv.dueDate.toLocaleDateString('en-IN', { day: 'numeric', month: 'short', year: 'numeric' }),
-    status: inv.status,              // "PENDING", "PARTIAL", "PAID", "OVERDUE"
-    phone: inv.tenant.phone
-  }))
+    dueDate: new Date(inv.dueDate).toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    }),
+    status: inv.status,
+  }));
 }
 
 export async function getUnassignedTenantsList(pgId: string) {
