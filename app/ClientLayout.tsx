@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { 
   Menu, X, BedDouble, LayoutGrid, Banknote, 
-  Settings, HelpCircle, Plus, Building2 
+  Settings, HelpCircle, Plus, Building2, Users
 } from 'lucide-react'
 import Link from 'next/link'
 import { usePathname, useRouter } from 'next/navigation' 
@@ -108,6 +108,22 @@ export default function ClientLayout({
                 >
                   <BedDouble size={20} className="mr-3" />
                   Room Inventory
+                </Link>
+              </li>
+
+              {/* Tenants Directory Link */}
+              <li>
+                <Link 
+                  href="/tenants" 
+                  onClick={() => setIsSidebarOpen(false)}
+                  className={`flex items-center px-4 py-3 rounded-full font-medium transition-all ${
+                    pathname === '/tenants' 
+                    ? 'bg-indigo-600 text-white shadow-md' 
+                    : 'text-slate-600 hover:bg-slate-200/50'
+                  }`}
+                >
+                  <Users size={20} className="mr-3" />
+                  Tenants Directory
                 </Link>
               </li>
 

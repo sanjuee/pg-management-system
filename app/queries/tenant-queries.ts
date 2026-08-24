@@ -56,4 +56,26 @@ export async function getUnassignedTenantsList(pgId: string) {
   })
 }
 
+export async function getAllTenantsDirectory(pgId: string) {
+  const tenants = await prisma.tenant.findMany({
+    where: { pgId },
+    include: {
+      room: true
+    },
+    orderBy: { createdAt: 'desc' }
+  });
 
+  return tenants.map(tenant => ({
+    id: tenant.id,
+    name: tenant.name,
+    phone: tenant.phone,
+    email: tenant.email,
+    rent: tenant.rent,
+    room: tenant.room?.roomNumber || "Unassigned",
+    joinedDate: new Date(tenant.createdAt).toLocaleDateString('en-IN', {
+      day: 'numeric',
+      month: 'short',
+      year: 'numeric'
+    })
+  }));
+}
