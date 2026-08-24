@@ -3,17 +3,14 @@ import { getRentSummaryStats } from "../queries/summery-queries";
 import RentLedgerTable from "./components/RentLedgerTable";
 // 1. Import the new wrapper component
 
-import { getRoomBasicDetails } from "@/app/queries/room-queries";
-import RentAddTenantButton from "../components/RentAddTenantButton";
+
 
 export default async function RentPage() {
   const pgId = "4f3c2b81-9d11-4a5e-b287-73c09r3e4b1a";
 
-  // 2. Fetch the table data, stats, and rooms concurrently
-  const [ledgerData, stats, availableRooms] = await Promise.all([
+  const [ledgerData, stats] = await Promise.all([
     getRentLedgerData(pgId),
     getRentSummaryStats(pgId),
-    getRoomBasicDetails(pgId),
   ]);
 
   return (
@@ -26,9 +23,6 @@ export default async function RentPage() {
             Manage rent collection and monitor payment statuses.
           </p>
         </div>
-
-        {/* 4. USE THE WRAPPER BUTTON */}
-        <RentAddTenantButton pgId={pgId} availableRooms={availableRooms} />
       </div>
 
       {/* THE 3 SUMMARY CARDS */}

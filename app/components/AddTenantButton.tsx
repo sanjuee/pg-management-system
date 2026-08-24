@@ -5,12 +5,12 @@ import { Plus } from "lucide-react";
 // Import your existing shared modal
 import AddTenantModal from "./AddTenantModal"; 
 
-type RentAddTenantButtonProps = {
+type AddTenantButtonProps = {
   pgId: string;
   availableRooms: { id: string; roomNumber: string; price: number }[];
 };
 
-export default function RentAddTenantButton({ pgId, availableRooms }: RentAddTenantButtonProps) {
+export default function AddTenantButton({ pgId, availableRooms }: AddTenantButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
