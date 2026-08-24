@@ -18,6 +18,7 @@ import {
 } from "@/app/actions/room-actions";
 import { assignExistingTenantAction, unassignTenantAction } from "@/app/actions/tenant-action";
 import toast from "react-hot-toast";
+import ConfirmModal from "@/app/components/ConfirmModal";
 
 type RoomItem = {
   id: string;
@@ -52,6 +53,17 @@ export default function RoomDetailsModal({
   const [isEditing, setIsEditing] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false)
   const [selectedTenantId, setSelectedTenantId] = useState("")
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   if (!isOpen || !room) return null;
 
@@ -62,30 +74,37 @@ export default function RoomDetailsModal({
       return;
     }
 
-    if (
-      window.confirm(`Are you sure you want to delete Room ${room.roomNumber}?`)
-    ) {
-      try {
-        await deleteRoomUnitAction(room.id);
-        toast.success("Room deleted successfully");
-        onClose();
-      } catch (error: any) {
-        toast.error(error.message || "Failed to delete room");
-      }
-    }
+    setConfirmConfig({
+      isOpen: true,
+      title: "Delete Room",
+      message: `Are you sure you want to delete Room ${room.roomNumber}?`,
+      onConfirm: async () => {
+        try {
+          await deleteRoomUnitAction(room.id);
+          toast.success("Room deleted successfully");
+          onClose();
+        } catch (error: any) {
+          toast.error(error.message || "Failed to delete room");
+        }
+      },
+    });
   };
 
   // 2. Handle Tenant Removal (Unassign)
   const handleRemoveTenant = async (tenantId: string, tenantName: string) => {
-    if (window.confirm(`Remove ${tenantName} from Room ${room.roomNumber}?`)) {
-      try {
-        await unassignTenantAction(tenantId);
-        toast.success(`${tenantName} removed from room`);
-        // Next.js will auto-refresh the data via revalidatePath!
-      } catch (error: any) {
-        toast.error("Failed to remove tenant");
+    setConfirmConfig({
+      isOpen: true,
+      title: "Remove Tenant",
+      message: `Remove ${tenantName} from Room ${room.roomNumber}?`,
+      onConfirm: async () => {
+        try {
+          await unassignTenantAction(tenantId);
+          toast.success(`${tenantName} removed from room`);
+        } catch (error: any) {
+          toast.error("Failed to remove tenant");
+        }
       }
-    }
+    });
   };
 
   const handleAssignExisting = async () => {
@@ -105,6 +124,7 @@ export default function RoomDetailsModal({
   }
 
   return (
+    <>
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
       <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
         {/* HEADER / EDIT FORM */}
@@ -320,5 +340,13 @@ export default function RoomDetailsModal({
         </div>
       </div>
     </div>
+    <ConfirmModal 
+      isOpen={confirmConfig.isOpen}
+      onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+      title={confirmConfig.title}
+      message={confirmConfig.message}
+      onConfirm={confirmConfig.onConfirm}
+    />
+    </>
   )
 }

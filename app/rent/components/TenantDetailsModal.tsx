@@ -5,6 +5,7 @@ import { Edit2, X, Save, Trash2, Loader2 } from "lucide-react"
 
 import toast from "react-hot-toast"
 import { updateTenantDetailsAction, deleteTenantAction } from "@/app/actions/tenant-action"
+import ConfirmModal from "@/app/components/ConfirmModal"
 
 type TenantDetailsModalProps = {
   tenant: any
@@ -19,6 +20,17 @@ export default function TenantDetailsModal({
 }: TenantDetailsModalProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
     if (e.target === e.currentTarget && !isEditing) {
@@ -39,22 +51,25 @@ export default function TenantDetailsModal({
 
   const handleDelete = async () => {
     const tenantId = tenant.tenantId || tenant.id
-    if (!confirm(`Are you sure you want to delete ${tenant.name}? This action cannot be undone.`)) {
-      return
-    }
+    setConfirmConfig({
+      isOpen: true,
+      title: "Delete Tenant",
+      message: `Are you sure you want to delete ${tenant.name}? This action cannot be undone.`,
+      onConfirm: async () => {
+        setIsDeleting(true)
+        const toastId = toast.loading("Deleting tenant...")
 
-    setIsDeleting(true)
-    const toastId = toast.loading("Deleting tenant...")
-
-    try {
-      await deleteTenantAction(tenantId)
-      toast.success("Tenant deleted successfully!", { id: toastId })
-      onClose()
-    } catch (error: any) {
-      toast.error(error.message || "Failed to delete tenant", { id: toastId })
-    } finally {
-      setIsDeleting(false)
-    }
+        try {
+          await deleteTenantAction(tenantId)
+          toast.success("Tenant deleted successfully!", { id: toastId })
+          onClose()
+        } catch (error: any) {
+          toast.error(error.message || "Failed to delete tenant", { id: toastId })
+        } finally {
+          setIsDeleting(false)
+        }
+      }
+    });
   }
 
   // Calculate the remaining balance
@@ -227,6 +242,13 @@ export default function TenantDetailsModal({
           </div>
         </form>
       </div>
+      <ConfirmModal 
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+      />
     </div>
   )
 }

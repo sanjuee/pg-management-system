@@ -9,6 +9,7 @@ import {
   deleteRoomTypeAction,
 } from "@/app/actions/room-actions";
 import toast from "react-hot-toast";
+import ConfirmModal from "@/app/components/ConfirmModal";
 
 type RoomType = {
   id: string;
@@ -29,20 +30,34 @@ export default function ManageRoomTypesModal({
   roomTypes,
 }: ManageRoomTypesModalProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [confirmConfig, setConfirmConfig] = useState<{
+    isOpen: boolean;
+    title: string;
+    message: string;
+    onConfirm: () => void;
+  }>({
+    isOpen: false,
+    title: "",
+    message: "",
+    onConfirm: () => {},
+  });
 
   if (!isOpen) return null;
 
   const handleDelete = async (id: string, name: string) => {
-    if (
-      window.confirm(`Are you sure you want to delete the "${name}" category?`)
-    ) {
-      try {
-        await deleteRoomTypeAction(id);
-        toast.success(`Category "${name}" deleted safely!`); // Success toast
-      } catch (error: any) {
-        toast.error(error.message); // Error toast (if rooms are attached)
-      }
-    }
+    setConfirmConfig({
+      isOpen: true,
+      title: "Delete Category",
+      message: `Are you sure you want to delete the "${name}" category?`,
+      onConfirm: async () => {
+        try {
+          await deleteRoomTypeAction(id);
+          toast.success(`Category "${name}" deleted safely!`); // Success toast
+        } catch (error: any) {
+          toast.error(error.message); // Error toast (if rooms are attached)
+        }
+      },
+    });
   };
 
   return (
@@ -188,6 +203,13 @@ export default function ManageRoomTypesModal({
           )}
         </div>
       </div>
+      <ConfirmModal 
+        isOpen={confirmConfig.isOpen}
+        onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
+        title={confirmConfig.title}
+        message={confirmConfig.message}
+        onConfirm={confirmConfig.onConfirm}
+      />
     </div>
   );
 }
