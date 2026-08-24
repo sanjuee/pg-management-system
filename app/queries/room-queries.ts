@@ -57,3 +57,16 @@ export async function getAvailableRoomsList(pgId: string) {
       price: room.roomType.price
     }))
 }
+
+export async function getRoomBasicDetails(pgId: string) {
+  const rooms = await prisma.roomUnit.findMany({
+    where: { pgId },
+    include: { roomType: true },
+  })
+
+  return rooms.map((room) => ({
+    id: room.id,
+    roomNumber: room.roomNumber,
+    price: room.roomType.price,
+  }))
+}

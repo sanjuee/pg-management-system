@@ -3,29 +3,18 @@ import { getRentSummaryStats } from "../queries/summery-queries";
 import RentLedgerTable from "./components/RentLedgerTable";
 // 1. Import the new wrapper component
 
-import { prisma } from "@/lib/prisma"; // Adjust your prisma import path
+import { getRoomBasicDetails } from "@/app/queries/room-queries";
 import RentAddTenantButton from "../components/RentAddTenantButton";
 
 export default async function RentPage() {
   const pgId = "4f3c2b81-9d11-4a5e-b287-73c09r3e4b1a";
 
-  // 2. Fetch the table data, stats, and raw rooms concurrently
-  const [ledgerData, stats, rawRooms] = await Promise.all([
+  // 2. Fetch the table data, stats, and rooms concurrently
+  const [ledgerData, stats, availableRooms] = await Promise.all([
     getRentLedgerData(pgId),
     getRentSummaryStats(pgId),
-    // Fetch rooms and INCLUDE their roomType so we can get the base price
-    prisma.roomUnit.findMany({
-      where: { pgId },
-      include: { roomType: true },
-    }),
+    getRoomBasicDetails(pgId),
   ]);
-
-  // 3. Format the rooms to perfectly match what your AddTenantModal expects
-  const availableRooms = rawRooms.map((room) => ({
-    id: room.id,
-    roomNumber: room.roomNumber,
-    price: room.roomType.price,
-  }));
 
   return (
     <div className="max-w-7xl mx-auto p-6 space-y-6">
