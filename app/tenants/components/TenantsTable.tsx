@@ -32,7 +32,8 @@ type SortOrder = "asc" | "desc";
 
 export default function TenantsTable({ initialData }: TenantsTableProps) {
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedTenant, setSelectedTenant] = useState<TenantDirectoryEntry | null>(null);
+  const [selectedTenant, setSelectedTenant] =
+    useState<TenantDirectoryEntry | null>(null);
 
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [sortField, setSortField] = useState<SortField>(null);
@@ -90,7 +91,10 @@ export default function TenantsTable({ initialData }: TenantsTableProps) {
     });
   }
 
-  const totalPages = Math.max(1, Math.ceil(processedData.length / ITEMS_PER_PAGE));
+  const totalPages = Math.max(
+    1,
+    Math.ceil(processedData.length / ITEMS_PER_PAGE),
+  );
   const paginatedData = processedData.slice(
     (currentPage - 1) * ITEMS_PER_PAGE,
     currentPage * ITEMS_PER_PAGE,
@@ -195,7 +199,7 @@ export default function TenantsTable({ initialData }: TenantsTableProps) {
                   Room {renderSortIcon("room")}
                 </div>
               </th>
-              <th className="p-4">Base Rent</th>
+              <th className="p-4">Agreed Rent</th>
               <th
                 className="p-4 cursor-pointer group"
                 onClick={() => handleSort("joinedDate")}
@@ -229,22 +233,24 @@ export default function TenantsTable({ initialData }: TenantsTableProps) {
                       {getInitials(tenant.name)}
                     </div>
                     <div>
-                        <span className="font-semibold text-gray-900 block">
+                      <span className="font-semibold text-gray-900 block">
                         {tenant.name}
-                        </span>
-                        <span className="text-xs text-gray-500 block font-medium mt-0.5">
+                      </span>
+                      <span className="text-xs text-gray-500 block font-medium mt-0.5">
                         {tenant.phone}
-                        </span>
+                      </span>
                     </div>
                   </td>
                   <td className="p-4">
-                      {tenant.room === "Unassigned" ? (
-                          <span className="px-2.5 py-1 bg-yellow-100 text-yellow-800 rounded-lg text-xs font-semibold">
-                              Unassigned
-                          </span>
-                      ) : (
-                          <span className="font-medium text-gray-700">{tenant.room}</span>
-                      )}
+                    {tenant.room === "Unassigned" ? (
+                      <span className="px-2.5 py-1 bg-yellow-100 text-yellow-800 rounded-lg text-xs font-semibold">
+                        Unassigned
+                      </span>
+                    ) : (
+                      <span className="font-medium text-gray-700">
+                        {tenant.room}
+                      </span>
+                    )}
                   </td>
                   <td className="p-4 font-bold text-gray-900">
                     ₹{tenant.rent.toLocaleString("en-IN")}/mo
@@ -254,14 +260,14 @@ export default function TenantsTable({ initialData }: TenantsTableProps) {
                   </td>
                   <td className="p-4 text-right pr-6">
                     <button
-                        className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold 
+                      className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold 
                                 hover:bg-gray-50 text-gray-700"
-                        onClick={(e) => {
-                            e.stopPropagation();
-                            setSelectedTenant(tenant);
-                        }}
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setSelectedTenant(tenant);
+                      }}
                     >
-                        View Profile
+                      View Profile
                     </button>
                   </td>
                 </tr>
@@ -301,23 +307,27 @@ export default function TenantsTable({ initialData }: TenantsTableProps) {
               <div className="flex justify-between items-center mt-1">
                 <div className="flex flex-col gap-1">
                   {tenant.room === "Unassigned" ? (
-                      <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded">Unassigned</span>
+                    <span className="text-xs font-semibold text-yellow-700 bg-yellow-100 px-2 py-0.5 rounded">
+                      Unassigned
+                    </span>
                   ) : (
-                      <span className="text-xs font-medium text-gray-600">Room: {tenant.room}</span>
+                    <span className="text-xs font-medium text-gray-600">
+                      Room: {tenant.room}
+                    </span>
                   )}
                   <span className="text-xs font-medium text-gray-500">
                     Rent: ₹{tenant.rent.toLocaleString("en-IN")}
                   </span>
                 </div>
-                  <button
-                    className="px-3 py-1.5 border border-gray-200 shadow-sm rounded-lg text-xs font-semibold"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setSelectedTenant(tenant);
-                    }}
-                  >
-                    Profile
-                  </button>
+                <button
+                  className="px-3 py-1.5 border border-gray-200 shadow-sm rounded-lg text-xs font-semibold"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setSelectedTenant(tenant);
+                  }}
+                >
+                  Profile
+                </button>
               </div>
             </div>
           ))
