@@ -1,8 +1,7 @@
 "use client"
 
-import { useState } from "react"
-import { createRoomTypeAction, createRoomUnitAction } from "@/app/actions/room-actions"
-import { X, Layers, Bed } from "lucide-react"
+import { createRoomUnitAction } from "@/app/actions/room-actions"
+import { X, Bed } from "lucide-react"
 
 type AddRoomModalProps = {
   isOpen: boolean
@@ -12,7 +11,6 @@ type AddRoomModalProps = {
 }
 
 export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRoomModalProps) {
-  const [activeTab, setActiveTab] = useState<"type" | "unit">("type")
 
   if (!isOpen) return null
 
@@ -23,68 +21,16 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
         {/* HEADER AREA */}
         <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Add Property Assets</h2>
-            <p className="text-xs font-medium text-slate-400 mt-0.5">Expand your PG infrastructure</p>
+            <h2 className="text-xl font-bold text-slate-900">Add Room Unit</h2>
+            <p className="text-xs font-medium text-slate-400 mt-0.5">Deploy a new physical room</p>
           </div>
           <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition">
             <X size={20} />
           </button>
         </div>
 
-        {/* TAB SWITCHER */}
-        <div className="flex border-b border-slate-100 bg-slate-50/30 p-2 gap-2">
-          <button
-            onClick={() => setActiveTab("unit")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition ${
-              activeTab === "unit" ? "bg-white text-indigo-600 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <Bed size={16} />
-             Physical Unit
-          </button>
-          <button
-            onClick={() => setActiveTab("type")}
-            className={`flex-1 flex items-center justify-center gap-2 py-2.5 rounded-xl text-sm font-semibold transition ${
-              activeTab === "type" ? "bg-white text-indigo-600 shadow-sm border border-slate-100" : "text-slate-500 hover:text-slate-800"
-            }`}
-          >
-            <Layers size={16} />
-             Room Category
-          </button>
-        </div>
-
-        {/* FORMS CONTENT CONTAINER */}
+        {/* FORM CONTENT CONTAINER */}
         <div className="p-6">
-          {activeTab === "type" ? (
-            /* FORM A: CREATE ROOM TYPE */
-            <form action={async (formData) => {
-              await createRoomTypeAction(formData)
-              setActiveTab("unit") // Automatically nudge them to step 2
-            }} className="space-y-4">
-              <input type="hidden" name="pgId" value={pgId} />
-              
-              <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Category Label</label>
-                <input type="text" name="name" placeholder="e.g., Single Room, 2-Sharing AC" required className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50" />
-              </div>
-
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Rent / Bed (₹)</label>
-                  <input type="number" name="price" placeholder="8500" required className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50" />
-                </div>
-                <div>
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Total Beds</label>
-                  <input type="number" name="capacity" defaultValue="2" min="1" required className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50" />
-                </div>
-              </div>
-
-              <button type="submit" className="w-full bg-indigo-800 hover:bg-indigo-900 text-white font-semibold py-3 rounded-xl shadow-sm transition mt-2">
-                Create Category
-              </button>
-            </form>
-          ) : (
-            /* FORM B: CREATE PHYSICAL ROOM UNIT */
             <form action={async (formData) => {
               await createRoomUnitAction(formData)
               onClose() // Close modal on success
@@ -116,7 +62,6 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
                 Deploy Room Unit
               </button>
             </form>
-          )}
         </div>
       </div>
     </div>

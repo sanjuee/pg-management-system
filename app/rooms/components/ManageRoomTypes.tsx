@@ -7,6 +7,7 @@ import { X, Layers, Edit2, Trash2, Save } from "lucide-react";
 import {
   updateRoomTypeAction,
   deleteRoomTypeAction,
+  createRoomTypeAction,
 } from "@/app/actions/room-actions";
 import toast from "react-hot-toast";
 import ConfirmModal from "@/app/components/ConfirmModal";
@@ -22,14 +23,17 @@ type ManageRoomTypesModalProps = {
   isOpen: boolean;
   onClose: () => void;
   roomTypes: RoomType[];
+  pgId: string;
 };
 
 export default function ManageRoomTypesModal({
   isOpen,
   onClose,
   roomTypes,
+  pgId,
 }: ManageRoomTypesModalProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
+  const [isAdding, setIsAdding] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     title: string;
@@ -78,17 +82,101 @@ export default function ManageRoomTypesModal({
               </p>
             </div>
           </div>
-          <button
-            onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition"
-          >
-            <X size={20} />
-          </button>
+          <div className="flex items-center gap-2">
+            {!isAdding && (
+              <button
+                onClick={() => setIsAdding(true)}
+                className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition shadow-sm mr-2"
+              >
+                + Add Category
+              </button>
+            )}
+            <button
+              onClick={onClose}
+              className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition"
+            >
+              <X size={20} />
+            </button>
+          </div>
         </div>
 
         {/* LIST AREA */}
         <div className="p-6 max-h-[60vh] overflow-y-auto space-y-3">
-          {roomTypes.length === 0 ? (
+          {isAdding && (
+            <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 shadow-sm mb-4">
+              <h3 className="font-bold text-slate-900 mb-3 text-sm">Create New Category</h3>
+              <form
+                action={async (formData) => {
+                  try {
+                    await createRoomTypeAction(formData);
+                    setIsAdding(false);
+                    toast.success("Category created successfully!");
+                  } catch (error: any) {
+                    toast.error(error.message || "Failed to create category");
+                  }
+                }}
+                className="flex items-end gap-3"
+              >
+                <input type="hidden" name="pgId" value={pgId} />
+
+                <div className="flex-1">
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Name
+                  </label>
+                  <input
+                    type="text"
+                    name="name"
+                    placeholder="e.g., Single AC"
+                    required
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white"
+                  />
+                </div>
+                <div className="w-24">
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Price (₹)
+                  </label>
+                  <input
+                    type="number"
+                    name="price"
+                    placeholder="8000"
+                    required
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white"
+                  />
+                </div>
+                <div className="w-20">
+                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                    Beds
+                  </label>
+                  <input
+                    type="number"
+                    name="capacity"
+                    defaultValue={1}
+                    min={1}
+                    required
+                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white"
+                  />
+                </div>
+
+                <div className="flex gap-2">
+                  <button
+                    type="submit"
+                    className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition"
+                  >
+                    <Save size={18} />
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setIsAdding(false)}
+                    className="bg-slate-200 text-slate-600 p-2 rounded-lg hover:bg-slate-300 transition"
+                  >
+                    <X size={18} />
+                  </button>
+                </div>
+              </form>
+            </div>
+          )}
+
+          {roomTypes.length === 0 && !isAdding ? (
             <p className="text-center text-slate-500 py-4">
               No categories created yet.
             </p>

@@ -22,7 +22,7 @@ type RoomItem = {
 type RoomInventoryGridProps = {
   initialRooms: RoomItem[];
   roomTypes: any[];
-  unassignedTenants: { id: string; name: string; phone: string }[]; 
+  unassignedTenants: { id: string; name: string; phone: string }[];
   pgId: string;
 };
 
@@ -30,7 +30,7 @@ type RoomInventoryGridProps = {
 export default function RoomInventoryGrid({
   initialRooms,
   roomTypes,
-  unassignedTenants, 
+  unassignedTenants,
   pgId,
 }: RoomInventoryGridProps) {
   const [statusFilter, setStatusFilter] = useState<string>("All Statuses");
@@ -87,7 +87,7 @@ export default function RoomInventoryGrid({
             className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-2.5 px-4 rounded-full font-semibold transition-colors shadow-sm text-sm"
           >
             <Plus size={18} />
-            Add New Room
+            Add Room Units
           </button>
           <button
             onClick={() => setIsManageTypesOpen(true)}
@@ -96,7 +96,6 @@ export default function RoomInventoryGrid({
             <Layers size={18} className="text-slate-400" />
             Manage Categories
           </button>
-
         </div>
       </div>
 
@@ -209,6 +208,7 @@ export default function RoomInventoryGrid({
         isOpen={isManageTypesOpen}
         onClose={() => setIsManageTypesOpen(false)}
         roomTypes={roomTypes}
+        pgId={pgId}
       />
     </div>
   );
