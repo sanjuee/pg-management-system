@@ -22,4 +22,11 @@ export async function login(formData: FormData) {
   revalidatePath('/', 'layout')
   redirect('/rent') // Send them to your awesome rent dashboard!
 }
+
+export async function logout() {
+  const supabase = await createClient()
+  await supabase.auth.signOut()
+  revalidatePath('/', 'layout')
+  redirect('/login')
+}
 

@@ -12,10 +12,12 @@ import {
   Plus,
   Building2,
   Users,
+  LogOut,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { Toaster } from "react-hot-toast";
+import { logout } from "@/app/actions/auth-actions";
 import AddTenantModal from "@/app/components/AddTenantModal";
 
 export default function ClientLayout({
@@ -185,6 +187,14 @@ export default function ClientLayout({
             <button className="flex items-center text-slate-600 hover:text-slate-900 transition-colors w-full font-medium px-4 py-2.5 rounded-lg hover:bg-slate-200/50">
               <HelpCircle size={20} className="mr-3 opacity-70" />
               Support
+            </button>
+
+            <button 
+              onClick={() => logout()}
+              className="flex items-center text-red-600 hover:text-red-700 transition-colors w-full font-medium px-4 py-2.5 rounded-lg hover:bg-red-50"
+            >
+              <LogOut size={20} className="mr-3 opacity-70" />
+              Logout
             </button>
           </div>
         </div>
