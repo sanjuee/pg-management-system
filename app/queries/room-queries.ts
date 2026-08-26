@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma/prisma"
 
 export async function getFlattenedRooms(pgId: string) {
   const units = await prisma.roomUnit.findMany({

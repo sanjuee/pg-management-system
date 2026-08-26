@@ -1,4 +1,4 @@
-import { prisma } from "@/lib/prisma"
+import { prisma } from "@/lib/prisma/prisma"
 
 export async function getRentLedgerData(pgId: string) {
   // 1. Fetch all invoices for the PG
