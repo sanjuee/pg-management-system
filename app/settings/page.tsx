@@ -1,6 +1,7 @@
 import { getAuthUser } from "@/lib/supabase/get-user";
 import { getOwnerPGs } from "@/app/queries/pg-queries";
 import SettingsAddPGSection from "./components/SettingsAddPGSection";
+import PGListItem from "./components/PGListItem";
 import Link from "next/link";
 import { Building2, Mail, ChevronRight } from "lucide-react";
 
@@ -69,30 +70,7 @@ export default async function SettingsPage() {
         ) : (
           <ul className="divide-y divide-slate-100">
             {pgs.map((pg) => (
-              <li key={pg.id}>
-                <Link
-                  href={`/pg/${pg.id}/rent`}
-                  className="flex items-center justify-between px-6 py-4 hover:bg-slate-50 transition-colors group"
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-9 h-9 rounded-xl bg-indigo-50 flex items-center justify-center">
-                      <Building2 size={16} className="text-indigo-600" />
-                    </div>
-                    <div>
-                      <p className="text-sm font-bold text-slate-900">
-                        {pg.name}
-                      </p>
-                      <p className="text-xs text-slate-400 font-medium mt-0.5">
-                        UPI: {pg.upiId}
-                      </p>
-                    </div>
-                  </div>
-                  <ChevronRight
-                    size={16}
-                    className="text-slate-300 group-hover:text-slate-500 transition-colors"
-                  />
-                </Link>
-              </li>
+              <PGListItem key={pg.id} pg={pg} />
             ))}
           </ul>
         )}

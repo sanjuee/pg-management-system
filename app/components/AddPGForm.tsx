@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { createPGAction } from "@/app/actions/pg-actions";
+import { createPGAction, updatePGAction } from "@/app/actions/pg-actions";
 import { Building2, CreditCard, Loader2, CalendarDays, Banknote } from "lucide-react";
 
 type Props = {
@@ -9,9 +9,17 @@ type Props = {
    *  If false (default), renders as a full-screen setup page form. */
   compact?: boolean;
   onCancel?: () => void;
+  initialData?: {
+    id: string;
+    name: string;
+    upiId: string;
+    billingCycleDate: number;
+    rentDueDate: number;
+    dailyLateFee: number;
+  };
 };
 
-export default function AddPGForm({ compact = false, onCancel }: Props) {
+export default function AddPGForm({ compact = false, onCancel, initialData }: Props) {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -21,12 +29,21 @@ export default function AddPGForm({ compact = false, onCancel }: Props) {
     setError(null);
     const formData = new FormData(e.currentTarget);
 
-    const result = await createPGAction(formData);
-    if (result?.error) {
-      setError(result.error);
-      setIsSubmitting(false);
+    if (initialData) {
+      const result = await updatePGAction(initialData.id, formData);
+      if (result?.error) {
+        setError(result.error);
+        setIsSubmitting(false);
+      } else if (onCancel) {
+        onCancel(); // Close form on success if it's a modal/toggle
+      }
+    } else {
+      const result = await createPGAction(formData);
+      if (result?.error) {
+        setError(result.error);
+        setIsSubmitting(false);
+      }
     }
-    // On success, the server action redirects — no client-side handling needed
   };
 
   return (
@@ -45,6 +62,7 @@ export default function AddPGForm({ compact = false, onCancel }: Props) {
               name="name"
               type="text"
               required
+              defaultValue={initialData?.name}
               placeholder="e.g. Sunrise Boys PG"
               className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400 bg-white"
             />
@@ -64,6 +82,7 @@ export default function AddPGForm({ compact = false, onCancel }: Props) {
               name="upiId"
               type="text"
               required
+              defaultValue={initialData?.upiId}
               placeholder="e.g. yourname@upi"
               className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400 bg-white"
             />
@@ -84,7 +103,7 @@ export default function AddPGForm({ compact = false, onCancel }: Props) {
               type="number"
               min="1"
               max="31"
-              defaultValue="1"
+              defaultValue={initialData?.billingCycleDate ?? 1}
               required
               className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400 bg-white"
             />
@@ -108,7 +127,7 @@ export default function AddPGForm({ compact = false, onCancel }: Props) {
               type="number"
               min="0"
               max="31"
-              defaultValue="0"
+              defaultValue={initialData?.rentDueDate ?? 0}
               required
               className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400 bg-white"
             />
@@ -132,7 +151,7 @@ export default function AddPGForm({ compact = false, onCancel }: Props) {
               type="number"
               min="0"
               step="any"
-              defaultValue="0"
+              defaultValue={initialData?.dailyLateFee ?? 0}
               required
               className="block w-full pl-9 pr-3 py-2.5 border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 placeholder:text-slate-400 bg-white"
             />
@@ -166,7 +185,7 @@ export default function AddPGForm({ compact = false, onCancel }: Props) {
           className={`${onCancel ? "w-2/3" : "w-full"} flex justify-center items-center gap-2 py-3 px-4 rounded-xl text-sm font-bold text-white bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 transition shadow-sm`}
         >
           {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : null}
-          {isSubmitting ? "Creating..." : "Create PG"}
+          {isSubmitting ? (initialData ? "Updating..." : "Creating...") : (initialData ? "Update PG" : "Create PG")}
         </button>
       </div>
     </form>
