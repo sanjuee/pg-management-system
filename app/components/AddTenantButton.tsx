@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import { Plus } from "lucide-react";
-// Import your existing shared modal
 import AddTenantModal from "./AddTenantModal";
 
 type AddTenantButtonProps = {
