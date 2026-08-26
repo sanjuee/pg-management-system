@@ -13,28 +13,58 @@ import {
   Building2,
   Users,
   LogOut,
+  ChevronDown,
 } from "lucide-react";
 import Link from "next/link";
-import { usePathname, useRouter } from "next/navigation";
+import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 import { logout } from "@/app/actions/auth-actions";
 import AddTenantModal from "@/app/components/AddTenantModal";
 
+type PG = { id: string; name: string };
+
 export default function ClientLayout({
   children,
-  userEmail,
   pgId,
+  pgs,
   availableRooms,
 }: {
   children: React.ReactNode;
-  userEmail: string;
   pgId: string;
+  pgs: PG[];
   availableRooms: { id: string; roomNumber: string; price: number }[];
 }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [isPGSwitcherOpen, setIsPGSwitcherOpen] = useState(false);
   const [isAddTenantModalOpen, setIsAddTenantModalOpen] = useState(false);
   const pathname = usePathname();
-  const router = useRouter();
+
+  // Extract pgId from pathname so it updates instantly during client-side navigation
+  const pgIdMatch = pathname.match(/^\/pg\/([^/]+)/);
+  const activePgId = pgIdMatch ? pgIdMatch[1] : pgId;
+
+  const currentPG = pgs.find((p) => p.id === activePgId) ?? pgs[0];
+
+  const navLinks = [
+    {
+      href: `/pg/${activePgId}/rent`,
+      label: "Tenant Rent",
+      icon: Banknote,
+      match: `/pg/${activePgId}/rent`,
+    },
+    {
+      href: `/pg/${activePgId}/rooms`,
+      label: "Room Inventory",
+      icon: BedDouble,
+      match: `/pg/${activePgId}/rooms`,
+    },
+    {
+      href: `/pg/${activePgId}/tenants`,
+      label: "Tenants Directory",
+      icon: Users,
+      match: `/pg/${activePgId}/tenants`,
+    },
+  ];
 
   return (
     <div className="flex h-screen bg-white font-sans text-slate-900 overflow-hidden">
@@ -74,6 +104,7 @@ export default function ClientLayout({
       >
         {/* TOP SECTION: Logo & Nav */}
         <div>
+          {/* Logo */}
           <div className="p-8 flex justify-between items-start">
             <div className="flex items-start gap-3">
               <div className="bg-indigo-600 p-2 rounded-xl text-white mt-1 shadow-sm">
@@ -89,7 +120,6 @@ export default function ClientLayout({
                 <p className="text-xs text-gray-500 mt-0.5">Admin Portal</p>
               </div>
             </div>
-
             <button
               className="lg:hidden p-2 -mr-2 -mt-2 text-slate-400 hover:text-slate-900 rounded-md transition-colors"
               onClick={() => setIsSidebarOpen(false)}
@@ -98,79 +128,79 @@ export default function ClientLayout({
             </button>
           </div>
 
+          {/* PG Switcher */}
+          <div className="px-4 mb-2">
+            <div className="relative">
+              <button
+                onClick={() => {
+                  if (pgs.length > 1) setIsPGSwitcherOpen(!isPGSwitcherOpen);
+                }}
+                className={`w-full flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm transition-colors ${pgs.length > 1 ? "hover:border-indigo-300 cursor-pointer" : "cursor-default"}`}
+              >
+                <div className="flex items-center gap-2 min-w-0">
+                  <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <Building2 size={14} className="text-indigo-600" />
+                  </div>
+                  <span className="text-sm font-bold text-slate-800 truncate">
+                    {currentPG?.name ?? "Select PG"}
+                  </span>
+                </div>
+                {pgs.length > 1 && (
+                  <ChevronDown
+                    size={16}
+                    className={`text-slate-400 flex-shrink-0 transition-transform ${isPGSwitcherOpen ? "rotate-180" : ""}`}
+                  />
+                )}
+              </button>
+
+              {isPGSwitcherOpen && pgs.length > 1 && (
+                <div className="absolute top-full left-0 right-0 mt-1 bg-white rounded-2xl border border-slate-200 shadow-lg z-10 overflow-hidden">
+                  {pgs.map((pg) => (
+                    <Link
+                      key={pg.id}
+                      href={`/pg/${pg.id}/rent`}
+                      onClick={() => {
+                        setIsPGSwitcherOpen(false);
+                        setIsSidebarOpen(false);
+                      }}
+                      className={`flex items-center gap-2 px-4 py-3 text-sm font-semibold hover:bg-indigo-50 transition-colors ${pg.id === activePgId ? "text-indigo-600 bg-indigo-50/50" : "text-slate-700"}`}
+                    >
+                      <Building2 size={14} />
+                      {pg.name}
+                    </Link>
+                  ))}
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Nav */}
           <nav className="mt-4 px-4">
             <ul className="flex flex-col gap-2">
-              {/* Dashboard Link */}
-              <li>
-                <Link
-                  href="/dashboard"
-                  onClick={() => setIsSidebarOpen(false)}
-                  className={`flex items-center px-4 py-3 rounded-full font-medium transition-all ${
-                    pathname === "/dashboard"
-                      ? "bg-indigo-600 text-white shadow-md"
-                      : "text-slate-600 hover:bg-slate-200/50"
-                  }`}
-                >
-                  <LayoutGrid size={20} className="mr-3" />
-                  Dashboard
-                </Link>
-              </li>
-
-              {/* Room Inventory Link */}
-              <li>
-                <Link
-                  href="/rooms"
-                  onClick={() => setIsSidebarOpen(false)}
-                  className={`flex items-center px-4 py-3 rounded-full font-medium transition-all ${
-                    pathname === "/rooms"
-                      ? "bg-indigo-600 text-white shadow-md"
-                      : "text-slate-600 hover:bg-slate-200/50"
-                  }`}
-                >
-                  <BedDouble size={20} className="mr-3" />
-                  Room Inventory
-                </Link>
-              </li>
-
-              {/* Tenants Directory Link */}
-              <li>
-                <Link
-                  href="/tenants"
-                  onClick={() => setIsSidebarOpen(false)}
-                  className={`flex items-center px-4 py-3 rounded-full font-medium transition-all ${
-                    pathname === "/tenants"
-                      ? "bg-indigo-600 text-white shadow-md"
-                      : "text-slate-600 hover:bg-slate-200/50"
-                  }`}
-                >
-                  <Users size={20} className="mr-3" />
-                  Tenants Directory
-                </Link>
-              </li>
-
-              {/* Tenant Rent Link */}
-              <li>
-                <Link
-                  href="/rent"
-                  onClick={() => setIsSidebarOpen(false)}
-                  className={`flex items-center px-4 py-3 rounded-full font-medium transition-all ${
-                    pathname === "/rent"
-                      ? "bg-indigo-600 text-white shadow-md"
-                      : "text-slate-600 hover:bg-slate-200/50"
-                  }`}
-                >
-                  <Banknote size={20} className="mr-3" />
-                  Tenant Rent
-                </Link>
-              </li>
+              {navLinks.map(({ href, label, icon: Icon, match }) => (
+                <li key={href}>
+                  <Link
+                    href={href}
+                    onClick={() => setIsSidebarOpen(false)}
+                    className={`flex items-center px-4 py-3 rounded-full font-medium transition-all ${
+                      pathname === match
+                        ? "bg-indigo-600 text-white shadow-md"
+                        : "text-slate-600 hover:bg-slate-200/50"
+                    }`}
+                  >
+                    <Icon size={20} className="mr-3" />
+                    {label}
+                  </Link>
+                </li>
+              ))}
             </ul>
           </nav>
         </div>
 
         {/* BOTTOM SECTION: Actions & Settings */}
         <div className="p-6 space-y-4">
-          {/* Add New Room Button (Matching the screenshot) */}
-          <button 
+          {/* Add New Tenant Button */}
+          <button
             onClick={() => setIsAddTenantModalOpen(true)}
             className="w-full flex items-center justify-center gap-2 bg-indigo-700 hover:bg-indigo-900 text-white py-3 px-4 rounded-full font-semibold transition-colors shadow-sm"
           >
@@ -179,17 +209,21 @@ export default function ClientLayout({
           </button>
 
           <div className="pt-4 border-t border-gray-200 space-y-1">
-            <button className="flex items-center text-slate-600 hover:text-slate-900 transition-colors w-full font-medium px-4 py-2.5 rounded-lg hover:bg-slate-200/50">
+            <Link
+              href="/settings"
+              onClick={() => setIsSidebarOpen(false)}
+              className={`flex items-center transition-colors w-full font-medium px-4 py-2.5 rounded-lg hover:bg-slate-200/50 ${pathname === "/settings" ? "text-indigo-600 bg-indigo-50" : "text-slate-600 hover:text-slate-900"}`}
+            >
               <Settings size={20} className="mr-3 opacity-70" />
               Settings
-            </button>
+            </Link>
 
             <button className="flex items-center text-slate-600 hover:text-slate-900 transition-colors w-full font-medium px-4 py-2.5 rounded-lg hover:bg-slate-200/50">
               <HelpCircle size={20} className="mr-3 opacity-70" />
               Support
             </button>
 
-            <button 
+            <button
               onClick={() => logout()}
               className="flex items-center text-red-600 hover:text-red-700 transition-colors w-full font-medium px-4 py-2.5 rounded-lg hover:bg-red-50"
             >
@@ -219,11 +253,11 @@ export default function ClientLayout({
       </main>
 
       {/* ADD TENANT MODAL */}
-      {pgId && availableRooms && (
+      {activePgId && availableRooms && (
         <AddTenantModal
           isOpen={isAddTenantModalOpen}
           onClose={() => setIsAddTenantModalOpen(false)}
-          pgId={pgId}
+          pgId={activePgId}
           availableRooms={availableRooms}
         />
       )}

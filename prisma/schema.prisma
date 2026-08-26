@@ -22,8 +22,8 @@ model PG {
   
   // Billing Engine
   billingCycleDate Int        @default(1)  
-  rentDueDate      Int        @default(5)  
-  dailyLateFee     Float      @default(50) 
+  rentDueDate      Int        @default(0)  
+  dailyLateFee     Float      @default(0) 
   
   tenants          Tenant[]
   invoices         Invoice[]  
