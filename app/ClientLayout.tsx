@@ -14,12 +14,15 @@ import {
   Users,
   LogOut,
   ChevronDown,
+  TrendingUp,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { Toaster } from "react-hot-toast";
 import { logout } from "@/app/actions/auth-actions";
 import AddTenantModal from "@/app/components/AddTenantModal";
+
+import Image from "next/image";
 
 type PG = { id: string; name: string };
 
@@ -47,10 +50,22 @@ export default function ClientLayout({
 
   const navLinks = [
     {
+      href: `/pg/${activePgId}/dashboard`,
+      label: "Dashboard",
+      icon: LayoutGrid,
+      match: `/pg/${activePgId}/dashboard`,
+    },
+    {
       href: `/pg/${activePgId}/rent`,
       label: "Tenant Rent",
       icon: Banknote,
       match: `/pg/${activePgId}/rent`,
+    },
+    {
+      href: `/pg/${activePgId}/expenses`,
+      label: "Profit & Loss",
+      icon: TrendingUp,
+      match: `/pg/${activePgId}/expenses`,
     },
     {
       href: `/pg/${activePgId}/rooms`,
@@ -71,12 +86,18 @@ export default function ClientLayout({
       {/* MOBILE HEADER */}
       <div className="lg:hidden fixed top-0 left-0 right-0 h-16 bg-[#f4f5f9] border-b border-slate-200 flex items-center justify-between px-4 sm:px-6 z-30">
         <div className="flex items-center gap-2">
-          <div className="bg-indigo-600 p-1.5 rounded-lg text-white">
-            <Building2 size={20} />
+          <Image
+            src="/logo.png"
+            alt="PG Lord"
+            width={68}
+            height={62}
+            className="object-contain"
+          />
+          <div>
+            <h1 className="-ml-3 text-xl font-bold tracking-tight text-slate-900">
+              pgLord
+            </h1>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-slate-900">
-            Proton
-          </h1>
         </div>
         <button
           onClick={() => setIsSidebarOpen(true)}
@@ -105,23 +126,27 @@ export default function ClientLayout({
         {/* TOP SECTION: Logo & Nav */}
         <div>
           {/* Logo */}
-          <div className="p-8 flex justify-between items-start">
-            <div className="flex items-start gap-3">
-              <div className="bg-indigo-600 p-2 rounded-xl text-white mt-1 shadow-sm">
-                <Building2 size={24} />
-              </div>
-              <div>
-                <h1 className="text-2xl font-bold tracking-tight text-slate-900 leading-none">
-                  Proton
+          <div className="p-8 pt-8 pb-10 pr-12 flex justify-between items-start relative">
+            <div className="flex flex-row items-center justify-center w-full ">
+              <Image
+                src="/logo.png"
+                alt="PG Lord Logo"
+                width={92}
+                height={92}
+                className="object-contain drop-shadow-sm"
+                priority
+              />
+              <div className="-ml-3  ">
+                <h1 className="text-2xl font-logo font-bold  tracking-tight text-slate-900  text-shadow-sm">
+                  pglord
                 </h1>
-                <p className="text-sm font-semibold text-indigo-600 mt-1">
-                  Management
+                <p className="text-[10px] font-bold text-indigo-600  uppercase tracking-wide">
+                  PG Management
                 </p>
-                <p className="text-xs text-gray-500 mt-0.5">Admin Portal</p>
               </div>
             </div>
             <button
-              className="lg:hidden p-2 -mr-2 -mt-2 text-slate-400 hover:text-slate-900 rounded-md transition-colors"
+              className="lg:hidden absolute top-6 right-6 p-2 text-slate-400 hover:text-slate-900 rounded-md transition-colors"
               onClick={() => setIsSidebarOpen(false)}
             >
               <X size={24} />
@@ -138,10 +163,10 @@ export default function ClientLayout({
                 className={`w-full flex items-center justify-between gap-2 bg-white border border-slate-200 rounded-2xl px-4 py-3 shadow-sm transition-colors ${pgs.length > 1 ? "hover:border-indigo-300 cursor-pointer" : "cursor-default"}`}
               >
                 <div className="flex items-center gap-2 min-w-0">
-                  <div className="w-7 h-7 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
-                    <Building2 size={14} className="text-indigo-600" />
+                  <div className="w-10 h-10 rounded-lg bg-indigo-100 flex items-center justify-center flex-shrink-0">
+                    <Building2 size={24} className="text-indigo-600" />
                   </div>
-                  <span className="text-sm font-bold text-slate-800 truncate">
+                  <span className="text-lg font-bold text-slate-800 truncate">
                     {currentPG?.name ?? "Select PG"}
                   </span>
                 </div>

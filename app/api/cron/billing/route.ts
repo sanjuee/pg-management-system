@@ -80,9 +80,6 @@ export async function GET(request: Request) {
               status: "OVERDUE", // Flip status to overdue
             },
           });
-          finesApplied++;
-        }
-      }
     }
 
     return NextResponse.json({

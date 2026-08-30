@@ -29,6 +29,7 @@ model PG {
   invoices         Invoice[]  
   roomTypes        RoomType[]
   roomUnits        RoomUnit[] 
+  expenses         Expense[]
 }
 
 model Invoice {
@@ -111,5 +112,18 @@ model Tenant {
 
   createdAt      DateTime  @default(now())
   updatedAt      DateTime  @updatedAt
+}
+
+model Expense {
+  id          String   @id @default(uuid())
+  month       String   // e.g., "August 2026" — matches billingMonth format
+  category    String   // "Electricity", "Internet", "Staff", "Maintenance", "Other"
+  amount      Float
+  note        String?
+
+  pgId        String
+  pg          PG       @relation(fields: [pgId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
 }
 
