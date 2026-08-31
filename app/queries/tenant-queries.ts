@@ -29,6 +29,7 @@ export async function getRentLedgerData(pgId: string) {
   // 4. Map the sorted invoices to your table's expected format
   return sortedInvoices.map(inv => ({
     id: inv.id,
+    billingMonth: inv.billingMonth,
     tenantId: inv.tenant.id,
     name: inv.tenant.name,
     phone: inv.tenant.phone,

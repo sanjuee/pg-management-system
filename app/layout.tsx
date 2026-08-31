@@ -65,8 +65,8 @@ export default async function RootLayout({
   const availableRooms = pgId ? await getRoomBasicDetails(pgId) : [];
 
   return (
-    <html lang="en" className={hankenGrotesk.variable}>
-      <body className="font-sans">
+    <html lang="en" className={hankenGrotesk.variable} suppressHydrationWarning>
+      <body className="font-sans" suppressHydrationWarning>
         <ClientLayout pgId={pgId} pgs={pgs} availableRooms={availableRooms}>
           {children}
         </ClientLayout>

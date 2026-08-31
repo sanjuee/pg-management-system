@@ -18,6 +18,7 @@ import TenantDetailsModal from "./TenantDetailsModal";
 import RecordPaymentModal from "./RecordPaymentModal";
 
 type TenantRent = {
+  billingMonth: string;
   baseRent: any;
   amountPaid: any;
   accumulatedFine: any;
@@ -48,6 +49,11 @@ export default function RentLedgerTable({
   const [selectedTenant, setSelectedTenant] = useState<TenantRent | null>(null);
   const [paymentInvoice, setPaymentInvoice] = useState<any | null>(null);
 
+  const currentMonthStr = new Date().toLocaleString("default", {
+    month: "long",
+    year: "numeric",
+  });
+  const [selectedMonth, setSelectedMonth] = useState<string>(currentMonthStr);
   const [statusFilter, setStatusFilter] = useState<string>("All");
   const [sortField, setSortField] = useState<SortField>(null);
   const [sortOrder, setSortOrder] = useState<SortOrder>("asc");
@@ -57,17 +63,25 @@ export default function RentLedgerTable({
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [filteredData, statusFilter, sortField, sortOrder, searchTerm]);
+  }, [filteredData, statusFilter, sortField, sortOrder, searchTerm, selectedMonth]);
 
   // Include search term filtering logic along with status filter
   const processedData = filteredData.filter((tenant) => {
+    const matchesMonth = selectedMonth === "All" || tenant.billingMonth === selectedMonth;
     const matchesStatus = statusFilter === "All" || tenant.status === statusFilter;
     const matchesSearch = 
       tenant.name.toLowerCase().includes(searchTerm.toLowerCase()) || 
       tenant.room.toString().toLowerCase().includes(searchTerm.toLowerCase());
     
-    return matchesStatus && matchesSearch;
+    return matchesMonth && matchesStatus && matchesSearch;
   });
+
+  const availableMonths = Array.from(new Set(filteredData.map((d) => d.billingMonth))).sort((a, b) => {
+    return new Date(b).getTime() - new Date(a).getTime();
+  });
+  if (!availableMonths.includes(currentMonthStr)) {
+    availableMonths.unshift(currentMonthStr);
+  }
 
   if (sortField) {
     processedData.sort((a, b) => {
@@ -191,6 +205,26 @@ export default function RentLedgerTable({
               onChange={(e) => setSearchTerm(e.target.value)}
               className="block w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md bg-gray-50 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             />
+          </div>
+
+          {/* Month Filter Input */}
+          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-md px-3 py-1.5 text-sm text-gray-600 w-full sm:w-auto justify-between">
+            <div className="flex items-center gap-2">
+              <CalendarClock size={14} className="text-gray-400" />
+              <span className="sm:hidden font-medium">Month:</span>
+            </div>
+            <select
+              className="bg-transparent font-medium focus:outline-none cursor-pointer pr-1 text-right sm:text-left"
+              value={selectedMonth}
+              onChange={(e) => setSelectedMonth(e.target.value)}
+            >
+              <option value="All">All Months</option>
+              {availableMonths.map((m) => (
+                <option key={m} value={m}>
+                  {m}
+                </option>
+              ))}
+            </select>
           </div>
 
           {/* Status Filter Input */}
