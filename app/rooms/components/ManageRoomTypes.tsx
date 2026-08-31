@@ -66,15 +66,15 @@ export default function ManageRoomTypesModal({
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-2xl shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-md w-full max-w-2xl shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* HEADER */}
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="bg-white border border-slate-200 text-slate-700 p-2 rounded-xl shadow-sm">
+            <div className="bg-white border border-gray-200 text-slate-700 p-2 rounded-md shadow-sm">
               <Layers size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-primary tracking-tight">
                 Manage Categories
               </h2>
               <p className="text-xs font-medium text-slate-500 mt-0.5">
@@ -86,25 +86,25 @@ export default function ManageRoomTypesModal({
             {!isAdding && (
               <button
                 onClick={() => setIsAdding(true)}
-                className="bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1.5 rounded-lg text-sm font-semibold transition shadow-sm mr-2"
+                className="bg-primary hover:bg-slate-800 text-white px-3 py-1.5 rounded-md text-sm font-semibold transition shadow-sm mr-2"
               >
                 + Add Category
               </button>
             )}
             <button
               onClick={onClose}
-              className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition"
+              className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-100 transition"
             >
-              <X size={20} />
+              <X size={18} />
             </button>
           </div>
         </div>
 
         {/* LIST AREA */}
-        <div className="p-6 max-h-[60vh] overflow-y-auto space-y-3">
+        <div className="p-5 max-h-[60vh] overflow-y-auto space-y-3">
           {isAdding && (
-            <div className="bg-indigo-50/50 border border-indigo-100 rounded-xl p-4 shadow-sm mb-4">
-              <h3 className="font-bold text-slate-900 mb-3 text-sm">Create New Category</h3>
+            <div className="bg-slate-50/70 border border-gray-100 rounded-md p-4 shadow-sm mb-4">
+              <h3 className="font-bold text-primary mb-3 text-sm">Create New Category</h3>
               <form
                 action={async (formData) => {
                   try {
@@ -120,7 +120,7 @@ export default function ManageRoomTypesModal({
                 <input type="hidden" name="pgId" value={pgId} />
 
                 <div className="flex-1">
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                     Name
                   </label>
                   <input
@@ -128,11 +128,11 @@ export default function ManageRoomTypesModal({
                     name="name"
                     placeholder="e.g., Single AC"
                     required
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white"
+                    className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400 focus:outline-none"
                   />
                 </div>
                 <div className="w-24">
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                     Price (₹)
                   </label>
                   <input
@@ -140,11 +140,11 @@ export default function ManageRoomTypesModal({
                     name="price"
                     placeholder="8000"
                     required
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white"
+                    className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400 focus:outline-none"
                   />
                 </div>
                 <div className="w-20">
-                  <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                  <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                     Beds
                   </label>
                   <input
@@ -153,21 +153,21 @@ export default function ManageRoomTypesModal({
                     defaultValue={1}
                     min={1}
                     required
-                    className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 bg-white"
+                    className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-accent bg-white focus:outline-none"
                   />
                 </div>
 
                 <div className="flex gap-2">
                   <button
                     type="submit"
-                    className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition"
+                    className="bg-primary text-white p-2 rounded-md hover:bg-slate-800 transition"
                   >
                     <Save size={18} />
                   </button>
                   <button
                     type="button"
                     onClick={() => setIsAdding(false)}
-                    className="bg-slate-200 text-slate-600 p-2 rounded-lg hover:bg-slate-300 transition"
+                    className="bg-slate-200 text-slate-600 p-2 rounded-md hover:bg-slate-300 transition"
                   >
                     <X size={18} />
                   </button>
@@ -184,7 +184,7 @@ export default function ManageRoomTypesModal({
             roomTypes.map((type) => (
               <div
                 key={type.id}
-                className="bg-white border border-slate-200 rounded-xl p-4 shadow-sm transition hover:border-slate-300"
+                className="bg-white border border-gray-200 rounded-md p-4 shadow-sm transition hover:border-gray-300"
               >
                 {editingId === type.id ? (
                   /* --- EDITING STATE FORM --- */
@@ -206,7 +206,7 @@ export default function ManageRoomTypesModal({
                     <input type="hidden" name="id" value={type.id} />
 
                     <div className="flex-1">
-                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                         Name
                       </label>
                       <input
@@ -214,11 +214,11 @@ export default function ManageRoomTypesModal({
                         name="name"
                         defaultValue={type.name}
                         required
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                        className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-accent focus:outline-none"
                       />
                     </div>
                     <div className="w-24">
-                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                         Price (₹)
                       </label>
                       <input
@@ -226,11 +226,11 @@ export default function ManageRoomTypesModal({
                         name="price"
                         defaultValue={type.price}
                         required
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                        className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-accent focus:outline-none"
                       />
                     </div>
                     <div className="w-20">
-                      <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                      <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-1">
                         Beds
                       </label>
                       <input
@@ -238,21 +238,21 @@ export default function ManageRoomTypesModal({
                         name="capacity"
                         defaultValue={type.capacity}
                         required
-                        className="w-full border border-slate-200 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500"
+                        className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:ring-1 focus:ring-accent focus:outline-none"
                       />
                     </div>
 
                     <div className="flex gap-2">
                       <button
                         type="submit"
-                        className="bg-indigo-600 text-white p-2 rounded-lg hover:bg-indigo-700 transition"
+                        className="bg-primary text-white p-2 rounded-md hover:bg-slate-800 transition"
                       >
                         <Save size={18} />
                       </button>
                       <button
                         type="button"
                         onClick={() => setEditingId(null)}
-                        className="bg-slate-100 text-slate-600 p-2 rounded-lg hover:bg-slate-200 transition"
+                        className="bg-slate-100 text-slate-600 p-2 rounded-md hover:bg-slate-200 transition"
                       >
                         <X size={18} />
                       </button>
@@ -262,7 +262,7 @@ export default function ManageRoomTypesModal({
                   /* --- READ-ONLY STATE --- */
                   <div className="flex justify-between items-center">
                     <div>
-                      <h3 className="font-bold text-slate-900 text-lg">
+                      <h3 className="font-bold text-primary text-base">
                         {type.name}
                       </h3>
                       <p className="text-sm font-medium text-slate-500">
@@ -273,15 +273,15 @@ export default function ManageRoomTypesModal({
                     <div className="flex gap-2">
                       <button
                         onClick={() => setEditingId(type.id)}
-                        className="p-2 text-slate-400 hover:text-indigo-600 hover:bg-indigo-50 rounded-lg transition"
+                        className="p-1.5 text-slate-400 hover:text-accent hover:bg-blue-50 rounded-md transition"
                       >
-                        <Edit2 size={18} />
+                        <Edit2 size={16} />
                       </button>
                       <button
                         onClick={() => handleDelete(type.id, type.name)}
-                        className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition"
+                        className="p-1.5 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-md transition"
                       >
-                        <Trash2 size={18} />
+                        <Trash2 size={16} />
                       </button>
                     </div>
                   </div>

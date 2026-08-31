@@ -57,62 +57,62 @@ export default function RecordPaymentModal({ isOpen, onClose, invoice }: RecordP
   }
 
   return (
-    <div className="fixed inset-0 bg-slate-900/50 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-md w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         
         {/* HEADER */}
-        <div className="p-6 bg-slate-50 border-b border-slate-100 flex justify-between items-start">
-          <div className="flex gap-4 items-center">
-            <div className="w-12 h-12 bg-indigo-100 text-indigo-600 rounded-full flex items-center justify-center">
-              <Receipt size={24} />
+        <div className="p-5 bg-slate-50/50 border-b border-gray-100 flex justify-between items-start">
+          <div className="flex gap-3 items-center">
+            <div className="w-10 h-10 bg-blue-50 text-accent rounded-md flex items-center justify-center">
+              <Receipt size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">Record Payment</h2>
-              <p className="text-sm text-slate-500 font-medium">{invoice.tenantName} • {invoice.billingMonth}</p>
+              <h2 className="text-lg font-bold text-primary tracking-tight">Record Payment</h2>
+              <p className="text-xs text-slate-500 font-medium">{invoice.tenantName} • {invoice.billingMonth}</p>
             </div>
           </div>
-          <button onClick={onClose} className="text-slate-400 hover:bg-slate-200 hover:text-slate-700 p-2 rounded-full transition">
-            <X size={20} />
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:bg-slate-100 hover:text-slate-600 rounded-md transition">
+            <X size={18} />
           </button>
         </div>
 
         {/* MATH BREAKDOWN */}
-        <div className="p-6 pb-2 space-y-3 border-b border-slate-50">
-          <div className="flex justify-between text-sm text-slate-600">
+        <div className="p-5 pb-2 space-y-3 border-b border-gray-100">
+          <div className="flex justify-between text-sm text-slate-600 font-medium">
             <span>Base Rent</span>
-            <span className="font-medium">₹{invoice.baseRent.toLocaleString('en-IN')}</span>
+            <span className="text-primary font-bold">₹{invoice.baseRent.toLocaleString('en-IN')}</span>
           </div>
           {invoice.accumulatedFine > 0 && (
-            <div className="flex justify-between text-sm text-red-600">
+            <div className="flex justify-between text-sm text-red-600 font-medium">
               <span>Late Fines</span>
-              <span className="font-medium">+ ₹{invoice.accumulatedFine.toLocaleString('en-IN')}</span>
+              <span className="font-bold">+ ₹{invoice.accumulatedFine.toLocaleString('en-IN')}</span>
             </div>
           )}
           {invoice.amountPaid > 0 && (
-            <div className="flex justify-between text-sm text-emerald-600">
+            <div className="flex justify-between text-sm text-emerald-600 font-medium">
               <span>Already Paid</span>
-              <span className="font-medium">- ₹{invoice.amountPaid.toLocaleString('en-IN')}</span>
+              <span className="font-bold">- ₹{invoice.amountPaid.toLocaleString('en-IN')}</span>
             </div>
           )}
-          <div className="flex justify-between text-lg font-bold text-slate-900 pt-2 border-t border-slate-100">
+          <div className="flex justify-between text-base font-bold text-primary pt-3 border-t border-gray-100">
             <span>Remaining Balance</span>
             <span>₹{remainingBalance.toLocaleString('en-IN')}</span>
           </div>
         </div>
 
         {/* PAYMENT FORM */}
-        <form onSubmit={handleSubmit} className="p-6 pt-4 space-y-5">
+        <form onSubmit={handleSubmit} className="p-5 pt-4 space-y-5">
           <input type="hidden" name="invoiceId" value={invoice.id} />
           <input type="hidden" name="paymentMethod" value={paymentMethod} />
 
           {/* Amount Input */}
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
               Amount Receiving Now (₹)
             </label>
             <div className="relative">
-              <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                <IndianRupee size={18} className="text-slate-400" />
+              <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
+                <IndianRupee size={16} className="text-slate-400" />
               </div>
               <input
                 type="number"
@@ -121,43 +121,43 @@ export default function RecordPaymentModal({ isOpen, onClose, invoice }: RecordP
                 onChange={(e) => setCustomAmount(e.target.value ? Number(e.target.value) : "")}
                 max={remainingBalance}
                 required
-                className="w-full pl-10 pr-4 py-3 bg-white border border-slate-200 rounded-xl font-bold text-lg text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-md font-bold text-base text-primary focus:outline-none focus:ring-1 focus:ring-accent transition placeholder:text-slate-400"
               />
             </div>
           </div>
 
           {/* Payment Method Selector */}
           <div>
-            <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
               Payment Method
             </label>
             <div className="grid grid-cols-3 gap-2">
               <button
                 type="button"
                 onClick={() => setPaymentMethod("UPI")}
-                className={`py-2 flex flex-col items-center justify-center gap-1 rounded-xl border text-xs font-bold transition ${
-                  paymentMethod === "UPI" ? 'bg-indigo-50 border-indigo-200 text-indigo-700' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                className={`py-2 flex flex-col items-center justify-center gap-1 rounded-md border text-[10px] font-bold transition ${
+                  paymentMethod === "UPI" ? 'bg-blue-50 border-blue-200 text-accent' : 'bg-white border-gray-200 text-slate-500 hover:bg-slate-50'
                 }`}
               >
-                <CreditCard size={18} /> UPI
+                <CreditCard size={16} /> UPI
               </button>
               <button
                 type="button"
                 onClick={() => setPaymentMethod("CASH")}
-                className={`py-2 flex flex-col items-center justify-center gap-1 rounded-xl border text-xs font-bold transition ${
-                  paymentMethod === "CASH" ? 'bg-emerald-50 border-emerald-200 text-emerald-700' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                className={`py-2 flex flex-col items-center justify-center gap-1 rounded-md border text-[10px] font-bold transition ${
+                  paymentMethod === "CASH" ? 'bg-blue-50 border-blue-200 text-accent' : 'bg-white border-gray-200 text-slate-500 hover:bg-slate-50'
                 }`}
               >
-                <Banknote size={18} /> Cash
+                <Banknote size={16} /> Cash
               </button>
               <button
                 type="button"
                 onClick={() => setPaymentMethod("BANK")}
-                className={`py-2 flex flex-col items-center justify-center gap-1 rounded-xl border text-xs font-bold transition ${
-                  paymentMethod === "BANK" ? 'bg-blue-50 border-blue-200 text-blue-700' : 'bg-white border-slate-200 text-slate-500 hover:bg-slate-50'
+                className={`py-2 flex flex-col items-center justify-center gap-1 rounded-md border text-[10px] font-bold transition ${
+                  paymentMethod === "BANK" ? 'bg-blue-50 border-blue-200 text-accent' : 'bg-white border-gray-200 text-slate-500 hover:bg-slate-50'
                 }`}
               >
-                <Banknote size={18} /> Bank
+                <Receipt size={16} /> Transfer
               </button>
             </div>
           </div>
@@ -172,23 +172,30 @@ export default function RecordPaymentModal({ isOpen, onClose, invoice }: RecordP
                 type="text"
                 name="referenceId"
                 placeholder="e.g., UTR Number"
-                className="w-full px-4 py-2 bg-white border border-slate-200 rounded-xl text-sm font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                className="w-full px-4 py-2 bg-white border border-gray-200 rounded-md text-sm font-medium text-primary focus:outline-none focus:ring-1 focus:ring-accent"
               />
             </div>
           )}
 
-          {/* Submit Action */}
+          {/* SUBMIT */}
           <button
             type="submit"
             disabled={isSubmitting || customAmount === "" || customAmount <= 0}
-            className="w-full flex items-center justify-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white py-3.5 rounded-xl font-bold shadow-md hover:shadow-lg transition disabled:opacity-50 disabled:cursor-not-allowed"
+            className={`w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-md shadow-sm transition text-sm ${
+              isSubmitting || customAmount === "" || customAmount <= 0
+                ? "bg-gray-100 text-gray-400 cursor-not-allowed"
+                : "bg-primary hover:bg-slate-800 text-white"
+            }`}
           >
             {isSubmitting ? (
-              <Loader2 size={20} className="animate-spin " />
+              <>
+                <Loader2 size={18} className="animate-spin" /> Recording...
+              </>
             ) : (
-              <CheckCircle2 size={20} />
+              <>
+                <CheckCircle2 size={18} /> Confirm Payment
+              </>
             )}
-            {isSubmitting ? "Processing..." : `Confirm ₹${Number(customAmount).toLocaleString('en-IN')}`}
           </button>
         </form>
       </div>

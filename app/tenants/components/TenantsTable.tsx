@@ -135,10 +135,10 @@ export default function TenantsTable({ initialData }: TenantsTableProps) {
   };
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
+    <div className="bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden flex flex-col">
       {/* TABLE SUB-HEADER ACTION ROW */}
       <div className="p-4 border-b border-gray-100 flex flex-col sm:flex-row justify-between items-start sm:items-center bg-white gap-3">
-        <h3 className="text-lg font-bold text-gray-900">All Tenants</h3>
+        <h3 className="text-lg font-bold text-primary">All Tenants</h3>
 
         <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 w-full sm:w-auto">
           {/* CONTEXTUAL SEARCH BAR */}
@@ -151,12 +151,12 @@ export default function TenantsTable({ initialData }: TenantsTableProps) {
               placeholder="Search by name, phone or room..."
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
-              className="block w-full pl-10 pr-4 py-2 border border-gray-200 rounded-xl bg-gray-50 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="block w-full pl-10 pr-4 py-2 border border-gray-200 rounded-md bg-gray-50 text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
 
           {/* Status Filter Input */}
-          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-xl px-3 py-1.5 text-sm text-gray-600 w-full sm:w-auto justify-between">
+          <div className="flex items-center gap-2 bg-gray-50 border border-gray-200 rounded-md px-3 py-1.5 text-sm text-gray-600 w-full sm:w-auto justify-between">
             <div className="flex items-center gap-2">
               <Filter size={14} className="text-gray-400" />
               <span className="sm:hidden font-medium">Filter by:</span>
@@ -172,7 +172,7 @@ export default function TenantsTable({ initialData }: TenantsTableProps) {
             </select>
           </div>
 
-          <button className="flex items-center justify-center gap-2 text-sm font-medium text-gray-600 hover:text-gray-900 px-3 py-2 rounded-xl border border-gray-200 hover:bg-gray-50 transition bg-white w-full sm:w-auto">
+          <button className="flex items-center justify-center gap-2 text-sm font-semibold text-white bg-primary hover:bg-slate-800 px-3 py-2 rounded-md transition w-full sm:w-auto">
             <FileDown size={16} /> Export CSV
           </button>
         </div>

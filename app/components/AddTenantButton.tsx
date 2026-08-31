@@ -7,11 +7,13 @@ import AddTenantModal from "./AddTenantModal";
 type AddTenantButtonProps = {
   pgId: string;
   availableRooms: { id: string; roomNumber: string; price: number }[];
+  className?: string;
 };
 
 export default function AddTenantButton({
   pgId,
   availableRooms,
+  className = "",
 }: AddTenantButtonProps) {
   const [isOpen, setIsOpen] = useState(false);
 
@@ -20,9 +22,9 @@ export default function AddTenantButton({
       {/* THE TRIGGER BUTTON */}
       <button
         onClick={() => setIsOpen(true)}
-        className="px-4 py-2 bg-indigo-600 text-white rounded-xl font-bold shadow-sm hover:bg-indigo-700 transition flex items-center gap-2"
+        className={`px-4 py-2 bg-primary hover:bg-slate-800 text-white rounded-md text-sm font-medium shadow-sm transition flex items-center justify-center gap-2 ${className}`}
       >
-        <Plus size={18} /> Add Tenant
+        <Plus size={16} /> Add Tenant
       </button>
 
       {/* YOUR EXISTING SHARED MODAL */}

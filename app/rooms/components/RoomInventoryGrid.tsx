@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus } from "lucide-react";
+import { Plus, Bed } from "lucide-react";
 import AddRoomModal from "./AddRoomModal";
 import AddTenantModal from "@/app/components/AddTenantModal";
 import RoomDetailsModal from "./RoomDetailsModal";
@@ -57,13 +57,13 @@ export default function RoomInventoryGrid({
   const getStatusStyles = (status: string) => {
     switch (status) {
       case "Available":
-        return "bg-green-50 text-green-700 border-green-200";
+        return "bg-blue-100 text-blue-700";
       case "Occupied":
-        return "bg-blue-50 text-blue-700 border-blue-200";
+        return "bg-emerald-100 text-emerald-700";
       case "Maintenance":
-        return "bg-red-50 text-red-700 border-red-200";
+        return "bg-red-100 text-red-700";
       default:
-        return "bg-slate-50 text-slate-700";
+        return "bg-slate-100 text-slate-700";
     }
   };
 
@@ -72,10 +72,10 @@ export default function RoomInventoryGrid({
       {/* PAGE HEADER OVERVIEW WITH ACTION BUTTON */}
       <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-slate-900">
+          <h1 className="text-3xl font-bold tracking-tight text-primary">
             Room Inventory
           </h1>
-          <p className="text-slate-500 mt-1">
+          <p className="text-slate-500 mt-1 font-medium">
             Manage all property units and monitor occupancy status.
           </p>
         </div>
@@ -84,16 +84,16 @@ export default function RoomInventoryGrid({
         <div className="flex gap-3">
           <button
             onClick={() => setIsAddRoomOpen(true)}
-            className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-2.5 px-4 rounded-full font-semibold transition-colors shadow-sm text-sm"
+            className="flex items-center gap-2 bg-primary hover:bg-slate-800 text-white py-2 px-4 rounded font-semibold transition-colors shadow-sm text-sm"
           >
-            <Plus size={18} />
+            <Plus size={16} />
             Add Room Units
           </button>
           <button
             onClick={() => setIsManageTypesOpen(true)}
-            className="flex items-center gap-2 bg-white border border-slate-200 hover:bg-slate-50 text-slate-700 py-2.5 px-4 rounded-full font-semibold transition-colors shadow-sm text-sm"
+            className="flex items-center gap-2 bg-white border border-gray-200 hover:bg-slate-50 text-slate-700 py-2 px-4 rounded font-semibold transition-colors shadow-sm text-sm"
           >
-            <Layers size={18} className="text-slate-400" />
+            <Layers size={16} className="text-slate-400" />
             Manage Categories
           </button>
         </div>
@@ -125,49 +125,65 @@ export default function RoomInventoryGrid({
           <div
             key={room.id}
             onClick={() => setSelectedRoom(room)}
-            className="bg-white border border-slate-200/80 rounded-2xl p-6 shadow-sm flex flex-col justify-between hover:shadow-md hover:border-indigo-300 transition relative overflow-hidden group cursor-pointer"
+            className="bg-white border border-gray-200/80 rounded-md shadow-sm flex flex-col hover:shadow-md hover:border-blue-300 transition relative overflow-hidden group cursor-pointer"
           >
-            <div>
-              <div className="flex justify-between items-start mb-2">
-                <div>
-                  <h3 className="text-2xl font-bold text-slate-900 tracking-tight">
-                    {room.roomNumber}
-                  </h3>
-                  <p className="text-sm font-medium text-slate-500">
-                    {room.typeName}
-                  </p>
-                </div>
-                <span
-                  className={`px-3 py-1 rounded-full text-xs font-bold border ${getStatusStyles(room.status)}`}
-                >
-                  {room.status}
+            {/* Header */}
+            <div className="bg-slate-50/70 p-4 border-b border-gray-100 flex justify-between items-center">
+              <div className="flex items-center gap-3">
+                <h3 className="text-2xl font-bold text-primary tracking-tight leading-none">
+                  {room.roomNumber}
+                </h3>
+                <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-blue-100 text-blue-700 uppercase tracking-wider">
+                  {room.typeName}
+                </span>
+              </div>
+              <span
+                className={`px-2 py-1 rounded text-xs font-bold ${getStatusStyles(
+                  room.status
+                )}`}
+              >
+                {room.status}
+              </span>
+            </div>
+
+            {/* Body */}
+            <div className="p-5">
+              <div className="flex justify-between items-center mb-5">
+                <span className="text-sm font-medium text-slate-500">
+                  Monthly Rent
+                </span>
+                <span className="text-xl font-bold text-primary tracking-tight">
+                  {room.status === "Maintenance"
+                    ? "--"
+                    : `₹${room.price.toLocaleString("en-IN")}`}
                 </span>
               </div>
 
-              <div className="mt-6 pt-4 border-t border-slate-100 flex justify-between items-center">
-                <div>
-                  <p className="text-xs font-semibold text-slate-400 uppercase tracking-wider">
-                    Monthly Rent
-                  </p>
-                  <p className="text-lg font-bold text-slate-800">
-                    {room.status === "Maintenance"
-                      ? "--"
-                      : `₹${room.price.toLocaleString("en-IN")}`}
-                  </p>
-                </div>
-                <div className="w-9 h-9 flex items-center justify-center rounded-full bg-slate-50 text-slate-400 group-hover:bg-indigo-50 group-hover:text-indigo-600 transition">
-                  →
-                </div>
+              <div className="space-y-0">
+                {Array.from({ length: room.capacity }).map((_, i) => {
+                  const tenant = room.tenants[i];
+                  return (
+                    <div
+                      key={i}
+                      className="flex items-center justify-between py-3 border-t border-slate-100"
+                    >
+                      <div className="flex items-center gap-2 text-slate-600">
+                        <Bed size={16} className="text-slate-400" />
+                        <span className="text-sm font-medium">Bed {i + 1}</span>
+                      </div>
+                      <span
+                        className={`text-sm truncate max-w-[120px] text-right ${
+                          tenant
+                            ? "font-semibold text-slate-700"
+                            : "font-medium text-slate-400"
+                        }`}
+                      >
+                        {tenant ? tenant.name : "Empty"}
+                      </span>
+                    </div>
+                  );
+                })}
               </div>
-            </div>
-
-            <div className="mt-4 text-xs font-medium text-slate-400 flex items-center gap-1.5">
-              <span
-                className={`w-2 h-2 rounded-full ${room.status === "Occupied" ? "bg-blue-400" : "bg-green-400"}`}
-              ></span>
-              {room.status === "Maintenance"
-                ? "Under Review"
-                : `${room.occupantCount} / ${room.capacity} beds filled`}
             </div>
           </div>
         ))}

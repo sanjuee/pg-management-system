@@ -14,37 +14,32 @@ export default function RevenueProgressBar({
   const isComplete = percentage >= 100;
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-      <div className="flex justify-between items-start mb-4">
-        <div>
-          <p className="text-sm font-medium text-slate-500 mb-1">
+    <div className="bg-white rounded-md border border-gray-200 p-5 shadow-sm flex flex-col justify-between h-full">
+      <div>
+        <div className="flex justify-between items-start mb-2">
+          <p className="text-sm font-medium text-slate-500">
             Monthly Revenue
           </p>
-          <div className="flex items-baseline gap-2">
-            <h2 className="text-3xl font-black text-slate-900">
-              ₹{totalCollected.toLocaleString("en-IN")}
-            </h2>
-            <span className="text-sm font-semibold text-slate-400">
-              / ₹{totalExpected.toLocaleString("en-IN")}
-            </span>
+          <div className="p-2 rounded bg-blue-50 text-accent">
+            <TrendingUp size={20} />
           </div>
         </div>
-        <div
-          className={`px-3 py-1 rounded-full text-sm font-bold flex items-center gap-1 ${
-            isComplete
-              ? "bg-emerald-100 text-emerald-700"
-              : "bg-indigo-100 text-indigo-700"
-          }`}
-        >
-          {isComplete ? <TrendingUp size={16} /> : <TrendingUp size={16} />}
-          {percentage}%
+        
+        <h2 className="text-2xl xl:text-3xl font-bold text-primary tracking-tight mb-2">
+          ₹{totalCollected.toLocaleString("en-IN")}
+        </h2>
+        
+        <div className="flex items-center gap-1 text-xs font-semibold text-emerald-600 mb-4">
+          <TrendingUp size={14} />
+          <span>{percentage}%</span>
+          <span className="text-slate-400 font-medium">collected</span>
         </div>
       </div>
 
-      <div className="relative h-4 bg-slate-100 rounded-full overflow-hidden">
+      <div className="relative h-2 bg-slate-100 rounded-full overflow-hidden mt-2">
         <div
           className={`absolute top-0 left-0 h-full rounded-full transition-all duration-1000 ease-out ${
-            isComplete ? "bg-emerald-500" : "bg-indigo-500"
+            isComplete ? "bg-emerald-500" : "bg-accent"
           }`}
           style={{ width: `${Math.min(percentage, 100)}%` }}
         />

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
 import { getRoomBasicDetails } from "@/app/queries/room-queries";
@@ -6,6 +7,8 @@ import { headers } from "next/headers";
 import { Toaster } from "react-hot-toast";
 import { getOwnerPGs } from "./queries/pg-queries";
 import { createClient } from "@/lib/supabase/server";
+
+const hankenGrotesk = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-hanken" });
 
 export const metadata: Metadata = {
   title: "PG Management",
@@ -26,16 +29,16 @@ export default async function RootLayout({
 
   if (isBarePage) {
     return (
-      <html lang="en">
-        <body>
+      <html lang="en" className={hankenGrotesk.variable}>
+        <body className="font-sans">
           <Toaster
             position="bottom-right"
             toastOptions={{
               duration: 6000,
               style: {
-                background: "#333",
+                background: "#000",
                 color: "#fff",
-                borderRadius: "10px",
+                borderRadius: "6px",
                 fontSize: "14px",
                 fontWeight: "500",
               },
@@ -62,8 +65,8 @@ export default async function RootLayout({
   const availableRooms = pgId ? await getRoomBasicDetails(pgId) : [];
 
   return (
-    <html lang="en">
-      <body>
+    <html lang="en" className={hankenGrotesk.variable}>
+      <body className="font-sans">
         <ClientLayout pgId={pgId} pgs={pgs} availableRooms={availableRooms}>
           {children}
         </ClientLayout>

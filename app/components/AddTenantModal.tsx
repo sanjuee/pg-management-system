@@ -31,16 +31,16 @@ export default function AddTenantModal({
   );
 
   return (
-    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-lg sm:backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+    <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
+      <div className="bg-white rounded-md w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         {/* HEADER */}
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-indigo-50/50">
+        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-slate-50/50">
           <div className="flex items-center gap-3">
-            <div className="bg-indigo-100 text-indigo-600 p-2 rounded-xl">
+            <div className="bg-blue-50 text-accent p-2 rounded-md">
               <UserPlus size={20} />
             </div>
             <div>
-              <h2 className="text-xl font-bold text-slate-900">
+              <h2 className="text-lg font-bold text-primary tracking-tight">
                 Add New Tenant
               </h2>
               <p className="text-xs font-medium text-slate-500 mt-0.5">
@@ -50,14 +50,14 @@ export default function AddTenantModal({
           </div>
           <button
             onClick={onClose}
-            className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition"
+            className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-100 transition"
           >
-            <X size={20} />
+            <X size={18} />
           </button>
         </div>
 
         {/* FORM */}
-        <div className="p-6">
+        <div className="p-5">
           <form
             action={async (formData) => {
               await createTenantAction(formData);
@@ -68,8 +68,8 @@ export default function AddTenantModal({
             <input type="hidden" name="pgId" value={pgId} />
 
             {/* THE PRE-CHOSEN DROPDOWN */}
-            <div className="bg-slate-50 p-4 rounded-xl border border-slate-100 mb-6">
-              <label className="block text-xs font-bold text-slate-500 uppercase tracking-wider mb-2">
+            <div className="bg-slate-50/70 p-4 rounded-md border border-gray-100 mb-5">
+              <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">
                 Assign to Room
               </label>
               <select
@@ -81,7 +81,7 @@ export default function AddTenantModal({
                   );
                   if (room) setAgreedRent(room.price);
                 }}
-                className="w-full border border-slate-200 rounded-lg px-3 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-white"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white"
               >
                 <option value="">Do not assign a room yet</option>
                 {availableRooms.map((room) => (
@@ -94,7 +94,7 @@ export default function AddTenantModal({
 
             {/* TENANT DETAILS */}
             <div>
-              <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                 Full Name
               </label>
               <input
@@ -102,13 +102,13 @@ export default function AddTenantModal({
                 name="name"
                 required
                 placeholder="e.g., Rahul Sharma"
-                className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400"
               />
             </div>
 
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                   Phone Number
                 </label>
                 <input
@@ -116,11 +116,11 @@ export default function AddTenantModal({
                   name="phone"
                   required
                   placeholder="98765 43210"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400"
                 />
               </div>
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">
+                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
                   Agreed Rent (₹)
                 </label>
                 {/* Pre-fill the rent amount based on the selected room's base price! */}
@@ -131,14 +131,14 @@ export default function AddTenantModal({
                   value={agreedRent}
                   onChange={(e) => setAgreedRent(e.target.value)}
                   placeholder="8000"
-                  className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50"
+                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400"
                 />
               </div>
             </div>
 
             <button
               type="submit"
-              className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-3 rounded-xl shadow-sm transition mt-4"
+              className="w-full bg-primary hover:bg-slate-800 text-white font-semibold py-2.5 rounded-md shadow-sm transition mt-2 text-sm"
             >
               Register Tenant
             </button>

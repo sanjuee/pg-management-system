@@ -16,21 +16,21 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-      <div className="bg-white rounded-3xl w-full max-w-md shadow-2xl overflow-hidden border border-slate-100 animate-in fade-in zoom-in-95 duration-150">
+      <div className="bg-white rounded-md w-full max-w-md shadow-xl overflow-hidden animate-in fade-in zoom-in-95 duration-150">
         
         {/* HEADER AREA */}
-        <div className="p-6 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+        <div className="p-5 border-b border-gray-100 flex justify-between items-center bg-slate-50/50">
           <div>
-            <h2 className="text-xl font-bold text-slate-900">Add Room Unit</h2>
-            <p className="text-xs font-medium text-slate-400 mt-0.5">Deploy a new physical room</p>
+            <h2 className="text-lg font-bold text-primary tracking-tight">Add Room Unit</h2>
+            <p className="text-xs font-medium text-slate-500 mt-0.5">Deploy a new physical room</p>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition">
-            <X size={20} />
+          <button onClick={onClose} className="p-1.5 text-slate-400 hover:text-slate-600 rounded-md hover:bg-slate-100 transition">
+            <X size={18} />
           </button>
         </div>
 
         {/* FORM CONTENT CONTAINER */}
-        <div className="p-6">
+        <div className="p-5">
             <form action={async (formData) => {
               await createRoomUnitAction(formData)
               onClose() // Close modal on success
@@ -38,8 +38,8 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
               <input type="hidden" name="pgId" value={pgId} />
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Select Base Configuration</label>
-                <select name="roomTypeId" required className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50 appearance-none">
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Select Base Configuration</label>
+                <select name="roomTypeId" required className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white appearance-none">
                   <option value="">Choose category layout...</option>
                   {roomTypes.map((type) => (
                     <option key={type.id} value={type.id}>
@@ -50,14 +50,14 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-slate-400 uppercase tracking-wider mb-1">Room Number Designation</label>
-                <input type="text" name="roomNumber" placeholder="e.g., 101-A, 304" required className="w-full border border-slate-200 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500 bg-slate-50/50" />
+                <label className="block text-[10px] font-bold text-slate-500 uppercase tracking-wider mb-2">Room Number Designation</label>
+                <input type="text" name="roomNumber" placeholder="e.g., 101-A, 304" required className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400" />
               </div>
 
               <button 
                 type="submit" 
                 disabled={roomTypes.length === 0}
-                className="w-full bg-indigo-600 hover:bg-indigo-800 text-white font-semibold py-3 rounded-xl shadow-sm transition mt-2 disabled:opacity-40 disabled:cursor-not-allowed"
+                className="w-full bg-primary hover:bg-slate-800 text-white font-semibold py-2.5 rounded-md shadow-sm transition mt-2 disabled:opacity-40 disabled:cursor-not-allowed text-sm"
               >
                 Deploy Room Unit
               </button>

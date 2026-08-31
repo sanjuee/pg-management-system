@@ -6,13 +6,16 @@ import {
   getOrphanedTenants,
   getRecentPayments,
 } from "@/app/queries/dashboard-queries";
+import { getRoomBasicDetails } from "@/app/queries/room-queries";
 
 import RevenueProgressBar from "./components/RevenueProgressBar";
 import OverdueAlertCard from "./components/OverdueAlertCard";
 import NetProfitCard from "./components/NetProfitCard";
-import VacancyRingChart from "./components/VacancyRingChart";
+import OccupancyCard from "./components/OccupancyCard";
 import OrphanedTenantsAlert from "./components/OrphanedTenantsAlert";
 import PaymentFeed from "./components/PaymentFeed";
+import QuickActionsCard from "./components/QuickActionsCard";
+import RecentActivityCard from "./components/RecentActivityCard";
 
 export default async function DashboardPage({
   params,
@@ -21,7 +24,7 @@ export default async function DashboardPage({
 }) {
   const { pgId } = await params;
 
-  const [revenue, overdue, profit, occupancy, orphaned, payments] =
+  const [revenue, overdue, profit, occupancy, orphaned, payments, rooms] =
     await Promise.all([
       getRevenueTracker(pgId),
       getOverdueAlerts(pgId),
@@ -29,6 +32,7 @@ export default async function DashboardPage({
       getOccupancyMetrics(pgId),
       getOrphanedTenants(pgId),
       getRecentPayments(pgId),
+      getRoomBasicDetails(pgId),
     ]);
 
   return (
@@ -42,8 +46,8 @@ export default async function DashboardPage({
 
       <OrphanedTenantsAlert pgId={pgId} orphans={orphaned} />
 
-      {/* TOP ROW: Financials */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      {/* TOP ROW: Financials & Occupancy (4 cols) */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
         <RevenueProgressBar
           totalExpected={revenue.totalExpected}
           totalCollected={revenue.totalCollected}
@@ -54,22 +58,24 @@ export default async function DashboardPage({
           totalExpenses={profit.totalExpenses}
           netProfit={profit.netProfit}
         />
+        <OccupancyCard
+          totalCapacity={occupancy.totalCapacity}
+          occupiedBeds={occupancy.occupiedBeds}
+        />
         <OverdueAlertCard
           totalPendingLateFees={overdue.totalPendingLateFees}
           defaultingTenants={overdue.defaultingTenants}
         />
       </div>
 
-      {/* MIDDLE ROW: Occupancy & Activity */}
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div className="h-full flex flex-col">
+      {/* BOTTOM SECTION */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        <div className="lg:col-span-2 h-full flex flex-col">
           <PaymentFeed payments={payments} />
         </div>
-        <div className="h-full flex flex-col">
-          <VacancyRingChart
-            totalCapacity={occupancy.totalCapacity}
-            occupiedBeds={occupancy.occupiedBeds}
-          />
+        <div className="lg:col-span-1 flex flex-col gap-6">
+          <QuickActionsCard pgId={pgId} availableRooms={rooms} />
+          <RecentActivityCard />
         </div>
       </div>
     </div>

@@ -14,12 +14,12 @@ export default function PaymentFeed({
   }[];
 }) {
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
+    <div className="bg-white rounded-md border border-gray-200 p-6 shadow-sm">
       <div className="flex items-center gap-2 mb-4">
-        <div className="p-2 bg-indigo-50 text-indigo-600 rounded-lg">
+        <div className="p-2 bg-blue-50 text-accent rounded">
           <Activity size={18} />
         </div>
-        <h3 className="font-bold text-slate-800">Recent Payments</h3>
+        <h3 className="font-bold text-primary">Recent Payments</h3>
       </div>
       
       {payments.length === 0 ? (
@@ -27,16 +27,16 @@ export default function PaymentFeed({
       ) : (
         <div className="space-y-4">
           {payments.map((payment) => (
-            <div key={payment.id} className="flex justify-between items-center group">
+            <div key={payment.id} className="flex justify-between items-center group border-b border-gray-50 pb-3 last:border-0 last:pb-0">
               <div className="flex flex-col">
-                <span className="text-sm font-bold text-slate-800 group-hover:text-indigo-600 transition-colors">
+                <span className="text-sm font-semibold text-primary group-hover:text-accent transition-colors">
                   {payment.tenantName}
                 </span>
                 <span className="text-xs text-slate-500">
                   Room {payment.roomNumber} • {new Date(payment.date).toLocaleDateString()}
                 </span>
               </div>
-              <span className="text-sm font-black text-emerald-600 bg-emerald-50 px-2 py-1 rounded-md">
+              <span className="text-sm font-bold text-emerald-700 bg-emerald-50 px-2 py-1 rounded">
                 +₹{payment.amount.toLocaleString("en-IN")}
               </span>
             </div>

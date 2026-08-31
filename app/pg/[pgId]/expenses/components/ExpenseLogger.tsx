@@ -46,10 +46,10 @@ export default function ExpenseLogger({
   }
 
   return (
-    <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
+    <div className="bg-white rounded-md border border-gray-200 shadow-sm overflow-hidden flex flex-col md:flex-row">
       {/* Logger Form */}
       <div className="p-6 md:w-1/3 bg-slate-50 border-r border-gray-200">
-        <h3 className="font-bold text-slate-800 mb-4 flex items-center gap-2">
+        <h3 className="font-bold text-primary mb-4 flex items-center gap-2">
           <ReceiptText size={18} className="text-slate-500" />
           Log Expense
         </h3>
@@ -59,7 +59,7 @@ export default function ExpenseLogger({
             <label className="block text-xs font-medium text-slate-500 mb-1">Category</label>
             <div className="relative">
               <Tag size={16} className="absolute left-3 top-3 text-slate-400" />
-              <select name="category" required className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500">
+              <select name="category" required className="w-full pl-9 pr-3 py-2 bg-white border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary">
                 <option value="">Select category...</option>
                 <option value="Electricity">Electricity</option>
                 <option value="Internet">Internet/WiFi</option>
@@ -80,7 +80,7 @@ export default function ExpenseLogger({
               required 
               min="1"
               placeholder="e.g. 5000"
-              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           
@@ -90,14 +90,14 @@ export default function ExpenseLogger({
               type="text" 
               name="note" 
               placeholder="e.g. August Bill"
-              className="w-full px-3 py-2 bg-white border border-slate-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              className="w-full px-3 py-2 bg-white border border-slate-300 rounded text-sm focus:outline-none focus:ring-1 focus:ring-primary"
             />
           </div>
           
           <button 
             type="submit" 
             disabled={isSubmitting}
-            className="w-full flex items-center justify-center gap-2 bg-slate-900 hover:bg-slate-800 text-white font-medium py-2 rounded-lg text-sm transition-colors disabled:opacity-50"
+            className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-slate-800 text-white font-medium py-2 rounded text-sm transition-colors disabled:opacity-50"
           >
             <Plus size={16} />
             {isSubmitting ? "Logging..." : "Add Expense"}
@@ -108,15 +108,15 @@ export default function ExpenseLogger({
       {/* Expense List */}
       <div className="p-6 md:w-2/3 flex flex-col">
         <div className="flex justify-between items-center mb-4">
-          <h3 className="font-bold text-slate-800">Current Month ({currentMonth})</h3>
+          <h3 className="font-bold text-primary">Current Month ({currentMonth})</h3>
         </div>
 
         {expenses.length === 0 ? (
-          <div className="flex-1 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-xl">
+          <div className="flex-1 flex items-center justify-center border-2 border-dashed border-slate-200 rounded-md">
             <p className="text-sm text-slate-400">No expenses logged this month.</p>
           </div>
         ) : (
-          <div className="overflow-auto border border-slate-200 rounded-xl max-h-64">
+          <div className="overflow-auto border border-slate-200 rounded-md max-h-64">
             <table className="w-full text-sm text-left">
               <thead className="bg-slate-50 text-slate-500 font-medium sticky top-0">
                 <tr>
@@ -131,9 +131,9 @@ export default function ExpenseLogger({
                 {expenses.map((expense) => (
                   <tr key={expense.id} className="border-b last:border-0 hover:bg-slate-50/50">
                     <td className="px-4 py-3 text-slate-600">{new Date(expense.createdAt).toLocaleDateString()}</td>
-                    <td className="px-4 py-3 font-medium text-slate-800">{expense.category}</td>
+                    <td className="px-4 py-3 font-medium text-primary">{expense.category}</td>
                     <td className="px-4 py-3 text-slate-500 text-xs">{expense.note || "-"}</td>
-                    <td className="px-4 py-3 text-right font-bold text-slate-800">₹{expense.amount.toLocaleString()}</td>
+                    <td className="px-4 py-3 text-right font-bold text-primary">₹{expense.amount.toLocaleString("en-IN")}</td>
                     <td className="px-4 py-3 text-right">
                       <button 
                         onClick={() => handleDelete(expense.id)}
