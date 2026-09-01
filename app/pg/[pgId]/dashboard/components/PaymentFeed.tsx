@@ -32,7 +32,7 @@ export default function PaymentFeed({
                 <span className="text-sm font-semibold text-primary group-hover:text-accent transition-colors">
                   {payment.tenantName}
                 </span>
-                <span className="text-xs text-slate-500">
+                <span className="text-xs text-slate-500" suppressHydrationWarning>
                   Room {payment.roomNumber} • {new Date(payment.date).toLocaleDateString()}
                 </span>
               </div>

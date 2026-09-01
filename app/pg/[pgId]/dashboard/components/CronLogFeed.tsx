@@ -35,7 +35,7 @@ export default function CronLogFeed({
             <div key={log.id} className="space-y-1.5 bg-slate-800/50 p-3 rounded-lg border border-slate-800">
               <div className="text-slate-500 flex justify-between">
                 <span>[SYSTEM RUN]</span>
-                <span>{new Date(log.ranAt).toLocaleString()}</span>
+                <span suppressHydrationWarning>{new Date(log.ranAt).toLocaleString()}</span>
               </div>
               {log.details.length === 0 ? (
                 <div className="text-slate-300 flex items-center gap-1.5">
