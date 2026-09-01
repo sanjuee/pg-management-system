@@ -30,6 +30,7 @@ model PG {
   roomTypes        RoomType[]
   roomUnits        RoomUnit[] 
   expenses         Expense[]
+  incomes          Income[]
 }
 
 model Invoice {
@@ -118,6 +119,19 @@ model Expense {
   id          String   @id @default(uuid())
   month       String   // e.g., "August 2026" — matches billingMonth format
   category    String   // "Electricity", "Internet", "Staff", "Maintenance", "Other"
+  amount      Float
+  note        String?
+
+  pgId        String
+  pg          PG       @relation(fields: [pgId], references: [id], onDelete: Cascade)
+
+  createdAt   DateTime @default(now())
+}
+
+model Income {
+  id          String   @id @default(uuid())
+  month       String   // e.g., "August 2026" — matches billingMonth format
+  category    String   // "Fine", "Laundry", "Food/Meals", "Vending Machine", "Other"
   amount      Float
   note        String?
 

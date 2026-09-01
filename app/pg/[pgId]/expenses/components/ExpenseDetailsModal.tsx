@@ -12,7 +12,8 @@ import ExpensePieChart from "./ExpensePieChart";
 
 type MonthDetail = {
   expenses: { category: string; amount: number; note: string | null }[];
-  payments: { tenantName: string; amount: number }[];
+  payments: { tenantName: string; amount: number; baseRent: number }[];
+  incomes: { category: string; amount: number; note: string | null }[];
 };
 
 type ExpenseDetailsModalProps = {
@@ -51,10 +52,42 @@ export default function ExpenseDetailsModal({
     .sort((a, b) => b.amount - a.amount);
   const totalExpAmt = groupedExpenses.reduce((s, e) => s + e.amount, 0);
 
-  // Group revenue as "Rent"
-  const totalRevAmt = details.payments.reduce((s, p) => s + p.amount, 0);
-  const revenueData =
-    totalRevAmt > 0 ? [{ category: "Rent", amount: totalRevAmt }] : [];
+  // Group revenue as "Rent" and add Incomes
+  const incomeCategoryMap: Record<string, number> = {};
+  let totalRentAmt = 0;
+  let totalFineAmt = 0;
+  
+  details.payments.forEach((p) => {
+    const rentPaid = Math.min(p.amount, p.baseRent);
+    const finePaid = Math.max(0, p.amount - p.baseRent);
+    totalRentAmt += rentPaid;
+    totalFineAmt += finePaid;
+  });
+
+  if (totalRentAmt > 0) incomeCategoryMap["Rent"] = totalRentAmt;
+  if (totalFineAmt > 0) incomeCategoryMap["Late Rent Fines"] = totalFineAmt;
+
+  details.incomes.forEach((inc) => {
+    incomeCategoryMap[inc.category] = (incomeCategoryMap[inc.category] || 0) + inc.amount;
+  });
+
+  const revenueData = Object.entries(incomeCategoryMap)
+    .map(([category, amount]) => ({ category, amount }))
+    .sort((a, b) => b.amount - a.amount);
+  
+  const totalRevAmt = revenueData.reduce((s, e) => s + e.amount, 0);
+  
+  const revenueList = [
+    ...details.payments.map((p) => {
+      const rentPaid = Math.min(p.amount, p.baseRent);
+      const finePaid = Math.max(0, p.amount - p.baseRent);
+      const parts = [];
+      if (rentPaid > 0) parts.push({ name: `${p.tenantName} (Rent)`, amount: rentPaid });
+      if (finePaid > 0) parts.push({ name: `${p.tenantName} (Late Fine)`, amount: finePaid });
+      return parts;
+    }).flat(),
+    ...details.incomes.map((i) => ({ name: i.category, amount: i.amount })),
+  ].sort((a, b) => b.amount - a.amount);
 
   return (
     <div
@@ -164,9 +197,9 @@ export default function ExpenseDetailsModal({
                 <ArrowUpRight size={16} className="text-emerald-400" />
                 Revenue
               </h4>
-              {details.payments.length === 0 ? (
+              {revenueList.length === 0 ? (
                 <p className="text-sm text-slate-400 italic">
-                  No payments recorded
+                  No revenue recorded
                 </p>
               ) : (
                 <div className="space-y-4">
@@ -183,22 +216,22 @@ export default function ExpenseDetailsModal({
                     <div
                       className={`space-y-2 overflow-y-auto ${LIST_MAX_HEIGHT} pr-1`}
                     >
-                      {details.payments.map((pay, i) => (
+                      {revenueList.map((item, i) => (
                         <div
                           key={i}
                           className="flex justify-between items-center bg-slate-50 rounded-xl px-4 py-3 border border-slate-100"
                         >
                           <span className="text-sm font-semibold text-slate-700">
-                            {pay.tenantName}
+                            {item.name}
                           </span>
                           <span className="text-sm font-bold text-emerald-600">
-                            +₹{pay.amount.toLocaleString("en-IN")}
+                            +₹{item.amount.toLocaleString("en-IN")}
                           </span>
                         </div>
                       ))}
                     </div>
                     {/* Fade hint when scrollable */}
-                    {details.payments.length > 4 && (
+                    {revenueList.length > 4 && (
                       <div className="absolute bottom-0 left-0 right-0 h-8 bg-gradient-to-t from-white to-transparent pointer-events-none flex items-end justify-center pb-1">
                         <ChevronDown
                           size={14}

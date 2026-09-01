@@ -8,6 +8,9 @@ const globalForPrisma = globalThis as unknown as {
   prisma: PrismaClient | undefined
 }
 
+// Invalidate cache to load new schema changes
+globalForPrisma.prisma = undefined;
+
 // 1. Initialize the Postgres connection pool
 const pool = new Pool({ connectionString })
 

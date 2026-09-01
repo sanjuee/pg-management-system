@@ -21,7 +21,8 @@ type HistoryRow = {
 
 type MonthDetail = {
   expenses: { category: string; amount: number; note: string | null }[];
-  payments: { tenantName: string; amount: number }[];
+  payments: { tenantName: string; amount: number; baseRent: number }[];
+  incomes: { category: string; amount: number; note: string | null }[];
 };
 
 export default function HistoryTable({

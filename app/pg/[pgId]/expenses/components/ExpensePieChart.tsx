@@ -85,11 +85,11 @@ export default function ExpensePieChart({
   const sizeClass =
     size === "small" ? "w-28 h-28" : "w-40 h-40 md:w-48 md:h-48";
   const innerRadius = size === "small" ? 35 : 45;
-  const mainFontSize = size === "small" ? "text-[9px]" : "text-[11px]";
-  const subFontSize = size === "small" ? "text-[7px]" : "text-[8px]";
+  const mainFontSize = size === "small" ? "text-[12px]" : "text-[18px]";
+  const subFontSize = size === "small" ? "text-[9px]" : "text-[11px]";
 
   return (
-    <div className="flex flex-col items-center gap-3">
+    <div className="flex flex-col items-center gap-3 ">
       <svg viewBox="0 0 200 200" className={sizeClass}>
         {slices}
         {/* Center circle for donut effect */}
@@ -106,7 +106,7 @@ export default function ExpensePieChart({
           x={cx}
           y={cy + 10}
           textAnchor="middle"
-          className={`fill-slate-400 ${subFontSize} font-medium`}
+          className={`fill-slate-400 ${subFontSize} font-medium `}
         >
           {centerLabel || "Total"}
         </text>
