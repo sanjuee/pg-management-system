@@ -26,8 +26,8 @@ export default function AddTenantModal({
     ? availableRooms.find((r) => r.id === initialRoomId)
     : null;
 
-  const [agreedRent, setAgreedRent] = useState<number | string>(
-    preSelectedRoom?.price || "",
+  const [selectedRoomPrice, setSelectedRoomPrice] = useState<number>(
+    preSelectedRoom?.price || 0,
   );
 
   return (
@@ -74,22 +74,30 @@ export default function AddTenantModal({
               </label>
               <select
                 name="roomId"
-                defaultValue={initialRoomId || ""} // <--- THIS PRE-CHOOSES THE ROOM
+                defaultValue={initialRoomId || ""}
                 onChange={(e) => {
                   const room = availableRooms.find(
                     (r) => r.id === e.target.value,
                   );
-                  if (room) setAgreedRent(room.price);
+                  setSelectedRoomPrice(room?.price || 0);
                 }}
                 className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white"
               >
                 <option value="">Do not assign a room yet</option>
                 {availableRooms.map((room) => (
                   <option key={room.id} value={room.id}>
-                    Room {room.roomNumber} (Base Rent: ₹{room.price})
+                    Room {room.roomNumber} — ₹{room.price}/mo
                   </option>
                 ))}
               </select>
+              {/* Rent is silently derived from the selected room's price */}
+              <input type="hidden" name="rent" value={selectedRoomPrice} />
+              {selectedRoomPrice > 0 && (
+                <p className="text-xs font-semibold text-slate-500 mt-2">
+                  Rent will be set to{" "}
+                  <span className="text-primary">₹{selectedRoomPrice.toLocaleString("en-IN")}/mo</span>
+                </p>
+              )}
             </div>
 
             {/* TENANT DETAILS */}
@@ -106,34 +114,17 @@ export default function AddTenantModal({
               />
             </div>
 
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Phone Number
-                </label>
-                <input
-                  type="tel"
-                  name="phone"
-                  required
-                  placeholder="98765 43210"
-                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400"
-                />
-              </div>
-              <div>
-                <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
-                  Agreed Rent (₹)
-                </label>
-                {/* Pre-fill the rent amount based on the selected room's base price! */}
-                <input
-                  type="number"
-                  name="rent"
-                  required
-                  value={agreedRent}
-                  onChange={(e) => setAgreedRent(e.target.value)}
-                  placeholder="8000"
-                  className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400"
-                />
-              </div>
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                Phone Number
+              </label>
+              <input
+                type="tel"
+                name="phone"
+                required
+                placeholder="98765 43210"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400"
+              />
             </div>
 
             <button

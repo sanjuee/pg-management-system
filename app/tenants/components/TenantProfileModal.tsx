@@ -151,7 +151,7 @@ export default function TenantProfileModal({
               </div>
               
               <div className="bg-gray-50 p-3 rounded-lg border border-transparent focus-within:border-indigo-200 transition-colors">
-                <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Base Rent (₹)</p>
+                <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Rent (₹)</p>
                 {isEditing ? (
                   <input 
                     name="rent" 
@@ -161,7 +161,12 @@ export default function TenantProfileModal({
                     className="w-full font-bold text-gray-900 bg-white border border-gray-300 rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500"
                   />
                 ) : (
-                  <p className="font-bold text-gray-900">₹{(tenant.rent).toLocaleString('en-IN')}/mo</p>
+                  <p className="font-bold text-gray-900">
+                    {tenant.rent > 0 
+                      ? `₹${(tenant.rent).toLocaleString('en-IN')}/mo`
+                      : <span className="text-slate-400 font-medium text-sm">Set on room assignment</span>
+                    }
+                  </p>
                 )}
               </div>
             </div>

@@ -68,10 +68,13 @@ export default function TenantDetailsModal({
 
             <div className="bg-gray-50 p-3 rounded-lg border border-transparent focus-within:border-indigo-200 transition-colors">
               <p className="text-xs text-gray-500 uppercase font-semibold mb-1">
-                Base Rent (₹)
+                Rent (₹)
               </p>
               <p className="font-bold text-gray-900">
-                ₹{(tenant.baseRent || tenant.amount).toLocaleString("en-IN")}/mo
+                {(tenant.baseRent || tenant.amount) > 0
+                  ? `₹${(tenant.baseRent || tenant.amount).toLocaleString("en-IN")}/mo`
+                  : <span className="text-slate-400 font-medium text-sm">Set on room assignment</span>
+                }
               </p>
             </div>
           </div>

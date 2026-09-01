@@ -198,7 +198,10 @@ export default function ManageRoomTypesModal({
                         );
                       } else {
                         setEditingId(null);
-                        toast.success("Category updated successfully!");
+                        toast.success(
+                          "Category updated! Rent changes will take effect from next month.",
+                          { duration: 4000 }
+                        );
                       }
                     }}
                     className="flex items-end gap-3"

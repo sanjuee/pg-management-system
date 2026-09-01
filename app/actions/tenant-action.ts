@@ -7,12 +7,13 @@ export async function createTenantAction(formData: FormData) {
   const pgId = formData.get("pgId") as string
   const name = formData.get("name") as string
   const phone = formData.get("phone") as string
-  const rent = parseFloat(formData.get("rent") as string)
-  const roomId = formData.get("roomId") as string // This might be empty if unassigned
-
-  if (!pgId || !name || !phone || isNaN(rent)) {
+  if (!pgId || !name || !phone) {
     throw new Error("Missing required fields for Tenant")
   }
+
+  // If no room is selected, rent starts at 0 (will be set when a room is assigned)
+  const rent = parseFloat(formData.get("rent") as string) || 0
+  const roomId = formData.get("roomId") as string
 
   const newTenant = await prisma.tenant.create({
   data: {
@@ -22,14 +23,13 @@ export async function createTenantAction(formData: FormData) {
     pgId: pgId,
     roomId: roomId || null,
     
-    // 👇 NEW: Generate their very first invoice instantly 👇
     invoices: {
       create: {
         billingMonth: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
         baseRent: rent,
         totalAmount: rent, // baseRent + 0 fines
         status: "PENDING",
-        dueDate: new Date(new Date().getFullYear(), new Date().getMonth(), 5), // Sets due date to the 5th
+        dueDate: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
         pgId: pgId
       }
     }
@@ -54,9 +54,17 @@ export async function unassignTenantAction(tenantId: string) {
 export async function assignExistingTenantAction(tenantId: string, roomId: string) {
   if (!tenantId || !roomId) throw new Error("Missing tenant or room ID");
 
+  // Look up the room's price to auto-set the tenant's rent
+  const room = await prisma.roomUnit.findUnique({
+    where: { id: roomId },
+    include: { roomType: true }
+  })
+
+  const rent = room?.roomType?.price ?? 0
+
   await prisma.tenant.update({
     where: { id: tenantId },
-    data: { roomId }
+    data: { roomId, rent }
   })
 
   revalidatePath("/rooms")

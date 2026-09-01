@@ -123,7 +123,7 @@ export default function ClientLayout({
               </div>
             )}
           </div>
-          
+
           <div className="relative">
             <button
               onClick={() => {
@@ -134,7 +134,7 @@ export default function ClientLayout({
             >
               <Menu size={20} />
             </button>
-            
+
             {isMobileMenuOpen && (
               <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-md border border-gray-200 shadow-lg z-50 overflow-hidden">
                 <div className="py-1">
@@ -297,7 +297,7 @@ export default function ClientLayout({
       {/* MAIN CONTENT AREA */}
       <main className="flex-1 overflow-y-auto pt-14 pb-16 lg:pt-0 lg:pb-0 lg:ml-[260px] w-full relative z-0 bg-surface-soft">
         <Toaster
-          position="top-center"
+          position="bottom-right"
           toastOptions={{
             duration: 6000,
             style: {

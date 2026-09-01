@@ -199,7 +199,7 @@ export default function TenantsTable({ initialData }: TenantsTableProps) {
                   Room {renderSortIcon("room")}
                 </div>
               </th>
-              <th className="p-4">Agreed Rent</th>
+              <th className="p-4">Rent</th>
               <th
                 className="p-4 cursor-pointer group"
                 onClick={() => handleSort("joinedDate")}
