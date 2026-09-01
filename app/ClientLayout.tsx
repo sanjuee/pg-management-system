@@ -13,6 +13,7 @@ import {
   LogOut,
   ChevronDown,
   TrendingUp,
+  Menu,
 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
@@ -34,6 +35,7 @@ export default function ClientLayout({
   availableRooms: { id: string; roomNumber: string; price: number }[];
 }) {
   const [isPGSwitcherOpen, setIsPGSwitcherOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const pathname = usePathname();
 
   // Extract pgId from pathname
@@ -90,32 +92,74 @@ export default function ClientLayout({
             pglord
           </h1>
         </div>
-        <div className="relative">
-          <button
-            onClick={() => setIsPGSwitcherOpen(!isPGSwitcherOpen)}
-            className="flex items-center gap-1 text-sm font-semibold text-slate-700 bg-slate-50 px-3 py-1.5 rounded-md border border-gray-200"
-          >
-            <Building2 size={14} />
-            <span className="max-w-[100px] truncate">
-              {currentPG?.name ?? "Select PG"}
-            </span>
-            <ChevronDown size={14} />
-          </button>
-          {isPGSwitcherOpen && pgs.length > 1 && (
-            <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-md border border-gray-200 shadow-lg z-50 overflow-hidden">
-              {pgs.map((pg) => (
-                <Link
-                  key={pg.id}
-                  href={`/pg/${pg.id}/dashboard`}
-                  onClick={() => setIsPGSwitcherOpen(false)}
-                  className={`flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-slate-50 transition-colors ${pg.id === activePgId ? "text-accent bg-blue-50/50" : "text-slate-700"}`}
-                >
-                  <Building2 size={14} />
-                  {pg.name}
-                </Link>
-              ))}
-            </div>
-          )}
+        <div className="flex items-center gap-3">
+          <div className="relative">
+            <button
+              onClick={() => {
+                setIsPGSwitcherOpen(!isPGSwitcherOpen);
+                if (isMobileMenuOpen) setIsMobileMenuOpen(false);
+              }}
+              className="flex items-center gap-1 text-sm font-semibold text-slate-700 bg-slate-50 px-3 py-1.5 rounded-md border border-gray-200"
+            >
+              <Building2 size={14} />
+              <span className="max-w-[100px] truncate">
+                {currentPG?.name ?? "Select PG"}
+              </span>
+              <ChevronDown size={14} />
+            </button>
+            {isPGSwitcherOpen && pgs.length > 1 && (
+              <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-md border border-gray-200 shadow-lg z-50 overflow-hidden">
+                {pgs.map((pg) => (
+                  <Link
+                    key={pg.id}
+                    href={`/pg/${pg.id}/dashboard`}
+                    onClick={() => setIsPGSwitcherOpen(false)}
+                    className={`flex items-center gap-2 px-4 py-3 text-sm font-medium hover:bg-slate-50 transition-colors ${pg.id === activePgId ? "text-accent bg-blue-50/50" : "text-slate-700"}`}
+                  >
+                    <Building2 size={14} />
+                    {pg.name}
+                  </Link>
+                ))}
+              </div>
+            )}
+          </div>
+          
+          <div className="relative">
+            <button
+              onClick={() => {
+                setIsMobileMenuOpen(!isMobileMenuOpen);
+                if (isPGSwitcherOpen) setIsPGSwitcherOpen(false);
+              }}
+              className="p-1.5 text-slate-600 hover:bg-slate-100 rounded-md"
+            >
+              <Menu size={20} />
+            </button>
+            
+            {isMobileMenuOpen && (
+              <div className="absolute top-full right-0 mt-1 w-48 bg-white rounded-md border border-gray-200 shadow-lg z-50 overflow-hidden">
+                <div className="py-1">
+                  <Link
+                    href="/settings"
+                    onClick={() => setIsMobileMenuOpen(false)}
+                    className="flex items-center px-4 py-3 text-sm font-medium text-slate-700 hover:bg-slate-50"
+                  >
+                    <Settings size={16} className="mr-3 text-slate-400" />
+                    Settings
+                  </Link>
+                  <button
+                    onClick={() => {
+                      setIsMobileMenuOpen(false);
+                      logout();
+                    }}
+                    className="flex w-full items-center px-4 py-3 text-sm font-medium text-red-600 hover:bg-red-50"
+                  >
+                    <LogOut size={16} className="mr-3 text-red-500" />
+                    Logout
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
         </div>
       </div>
 
