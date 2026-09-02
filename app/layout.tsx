@@ -8,11 +8,14 @@ import { Toaster } from "react-hot-toast";
 import { getOwnerPGs } from "./queries/pg-queries";
 import { createClient } from "@/lib/supabase/server";
 
-const hankenGrotesk = Hanken_Grotesk({ subsets: ["latin"], variable: "--font-hanken" });
+const hankenGrotesk = Hanken_Grotesk({
+  subsets: ["latin"],
+  variable: "--font-hanken",
+});
 
 export const metadata: Metadata = {
   title: "PG Management",
-  description: "",
+  description: "A complete solution for paying guest management",
 };
 
 export default async function RootLayout({
