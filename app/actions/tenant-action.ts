@@ -14,6 +14,7 @@ export async function createTenantAction(formData: FormData) {
   // If no room is selected, rent starts at 0 (will be set when a room is assigned)
   const rent = parseFloat(formData.get("rent") as string) || 0
   const roomId = formData.get("roomId") as string
+  const skipCurrentMonth = formData.get("skipCurrentMonth") === "on"
 
   const newTenant = await prisma.tenant.create({
   data: {
@@ -23,16 +24,19 @@ export async function createTenantAction(formData: FormData) {
     pgId: pgId,
     roomId: roomId || null,
     
-    invoices: {
-      create: {
-        billingMonth: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
-        baseRent: rent,
-        totalAmount: rent, // baseRent + 0 fines
-        status: "PENDING",
-        dueDate: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
-        pgId: pgId
+    // Only create an invoice for the current month if not skipped
+    ...(!skipCurrentMonth && {
+      invoices: {
+        create: {
+          billingMonth: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+          baseRent: rent,
+          totalAmount: rent, // baseRent + 0 fines
+          status: "PENDING",
+          dueDate: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
+          pgId: pgId
+        }
       }
-    }
+    })
   }
 })
 
