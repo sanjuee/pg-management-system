@@ -10,6 +10,7 @@ import {
   ArrowUpDown,
   ArrowDownRight,
   ArrowUpRight,
+  Search,
 } from "lucide-react";
 import ExpenseDetailsModal from "./ExpenseDetailsModal";
 
@@ -37,20 +38,16 @@ export default function HistoryTable({
     "month" | "collected" | "expenses" | "profit"
   >("month");
   const [sortDirection, setSortDirection] = useState<"asc" | "desc">("desc");
-  const [selectedMonth, setSelectedMonth] = useState<string>("All Months");
+  const [searchQuery, setSearchQuery] = useState<string>("");
   const [selectedRowMonth, setSelectedRowMonth] = useState<string | null>(null);
 
   const itemsPerPage = 10;
 
-  const availableMonths = useMemo(() => {
-    const months = new Set(history.map((h) => h.month));
-    return ["All Months", ...Array.from(months)];
-  }, [history]);
-
   const filteredHistory = useMemo(() => {
-    if (selectedMonth === "All Months") return history;
-    return history.filter((h) => h.month === selectedMonth);
-  }, [history, selectedMonth]);
+    if (!searchQuery.trim()) return history;
+    const query = searchQuery.toLowerCase();
+    return history.filter((h) => h.month.toLowerCase().includes(query));
+  }, [history, searchQuery]);
 
   const handleSort = (field: typeof sortField) => {
     if (sortField === field) {
@@ -83,10 +80,10 @@ export default function HistoryTable({
     });
   }, [filteredHistory, sortField, sortDirection]);
 
-  // Reset page when filter changes
+  // Reset page when search query changes
   useMemo(() => {
     setCurrentPage(1);
-  }, [selectedMonth]);
+  }, [searchQuery]);
 
   const totalPages = Math.ceil(sortedHistory.length / itemsPerPage);
   const startIndex = (currentPage - 1) * itemsPerPage;
@@ -107,25 +104,15 @@ export default function HistoryTable({
     <div className="bg-white rounded-2xl border border-gray-200 shadow-sm overflow-hidden flex flex-col">
       <div className="p-4 border-b border-gray-200 flex flex-col sm:flex-row justify-between items-center gap-4 bg-slate-50/50">
         <h3 className="font-bold text-slate-700">Financial History</h3>
-        <div className="flex items-center gap-2 w-full sm:w-auto">
-          <label
-            htmlFor="month-filter"
-            className="text-sm font-medium text-slate-500 shrink-0"
-          >
-            Filter by Month:
-          </label>
-          <select
-            id="month-filter"
-            value={selectedMonth}
-            onChange={(e) => setSelectedMonth(e.target.value)}
-            className="w-full sm:w-auto px-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
-          >
-            {availableMonths.map((month) => (
-              <option key={month} value={month}>
-                {month}
-              </option>
-            ))}
-          </select>
+        <div className="relative flex items-center w-full sm:w-auto">
+          <Search size={16} className="text-slate-400 absolute left-3" />
+          <input
+            type="text"
+            placeholder="Search month or year..."
+            value={searchQuery}
+            onChange={(e) => setSearchQuery(e.target.value)}
+            className="w-full sm:w-64 pl-9 pr-3 py-1.5 bg-white border border-gray-300 rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary"
+          />
         </div>
       </div>
 
