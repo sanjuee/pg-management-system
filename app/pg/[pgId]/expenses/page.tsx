@@ -11,6 +11,7 @@ import { prisma } from "@/lib/prisma/prisma";
 import ExpenseLogger from "./components/ExpenseLogger";
 import HistoryTable from "./components/HistoryTable";
 import ExpensePieChart from "./components/ExpensePieChart";
+import { COLORS } from "./components/constants";
 
 export default async function ExpensesHistoryPage({
   params,
@@ -211,11 +212,12 @@ export default async function ExpensesHistoryPage({
               </div>
 
               <div className="flex-1 w-full space-y-3">
-                {incomeCategoryBreakdown.map(({ category, amount }) => {
+                {incomeCategoryBreakdown.map(({ category, amount }, index) => {
                   const percent =
                     totalCollected > 0
                       ? Math.round((amount / totalCollected) * 100)
                       : 0;
+                  const barColor = COLORS[index % COLORS.length];
                   return (
                     <div key={category}>
                       <div className="flex justify-between items-center mb-1">
@@ -231,8 +233,8 @@ export default async function ExpensesHistoryPage({
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-1.5">
                         <div
-                          className="bg-emerald-500 h-1.5 rounded-full transition-all duration-500"
-                          style={{ width: `${percent}%` }}
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{ width: `${percent}%`, backgroundColor: barColor }}
                         />
                       </div>
                     </div>
@@ -257,11 +259,12 @@ export default async function ExpensesHistoryPage({
               </div>
 
               <div className="flex-1 w-full space-y-3">
-                {categoryBreakdown.map(({ category, amount }) => {
+                {categoryBreakdown.map(({ category, amount }, index) => {
                   const percent =
                     totalExpenses > 0
                       ? Math.round((amount / totalExpenses) * 100)
                       : 0;
+                  const barColor = COLORS[index % COLORS.length];
                   return (
                     <div key={category}>
                       <div className="flex justify-between items-center mb-1">
@@ -277,8 +280,8 @@ export default async function ExpensesHistoryPage({
                       </div>
                       <div className="w-full bg-slate-100 rounded-full h-1.5">
                         <div
-                          className="bg-accent h-1.5 rounded-full transition-all duration-500"
-                          style={{ width: `${percent}%` }}
+                          className="h-1.5 rounded-full transition-all duration-500"
+                          style={{ width: `${percent}%`, backgroundColor: barColor }}
                         />
                       </div>
                     </div>
