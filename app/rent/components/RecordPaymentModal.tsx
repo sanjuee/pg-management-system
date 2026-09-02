@@ -124,6 +124,12 @@ export default function RecordPaymentModal({ isOpen, onClose, invoice }: RecordP
                 className="w-full pl-9 pr-3 py-2 bg-white border border-gray-200 rounded-md font-bold text-base text-primary focus:outline-none focus:ring-1 focus:ring-accent transition placeholder:text-slate-400"
               />
             </div>
+            {customAmount !== "" && customAmount > 0 && customAmount < remainingBalance && (
+              <p className="text-xs text-amber-600 font-medium mt-1.5 flex items-center gap-1">
+                <span className="inline-block w-1.5 h-1.5 rounded-full bg-amber-500 shrink-0" />
+                Invoice will only be generated once fully paid.
+              </p>
+            )}
           </div>
 
           {/* Payment Method Selector */}

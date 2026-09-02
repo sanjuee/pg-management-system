@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import TenantDetailsModal from "./TenantDetailsModal";
 import RecordPaymentModal from "./RecordPaymentModal";
+import InvoiceDownloadButton from "./InvoiceDownloadButton";
 
 type TenantRent = {
   billingMonth: string;
@@ -27,8 +28,20 @@ type TenantRent = {
   room: string;
   amount: number;
   dueDate: string;
+  dueDateRaw?: string;
   status: string;
   phone: string;
+  // PDF Invoice data
+  pgName?: string;
+  pgUpiId?: string;
+  pgAddress?: string | null;
+  pgPhone?: string | null;
+  invoiceNumber?: number;
+  invoiceYear?: number;
+  createdAt?: string;
+  lastPaymentMethod?: string | null;
+  lastPaymentDate?: string | null;
+  lastPaymentRef?: string | null;
 };
 
 // 1. REMOVED search props from here
@@ -322,40 +335,67 @@ export default function RentLedgerTable({
                   </td>
                   <td className="p-4">{getStatusBadge(tenant.status)}</td>
                   <td className="p-4 text-right pr-6">
-                    {(tenant.status === "PENDING" ||
-                      tenant.status === "PARTIAL") && (
-                      <button
-                        className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold 
-                                  hover:bg-gray-50 text-gray-700"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPaymentInvoice({
-                            id: tenant.id,
-                            billingMonth: new Date().toLocaleString("default", {
-                              month: "long",
-                              year: "numeric",
-                            }),
+                    <div className="flex items-center justify-end gap-2">
+                      {tenant.status === "PAID" && tenant.pgName && (
+                        <InvoiceDownloadButton
+                          data={{
+                            invoiceNumber: tenant.invoiceNumber || 1,
+                            invoiceYear: tenant.invoiceYear || new Date().getFullYear(),
+                            billingMonth: tenant.billingMonth,
+                            createdAt: tenant.createdAt || new Date().toISOString(),
+                            dueDate: tenant.dueDate,
                             baseRent: tenant.baseRent,
                             accumulatedFine: tenant.accumulatedFine,
                             totalAmount: tenant.amount,
                             amountPaid: tenant.amountPaid,
                             tenantName: tenant.name,
-                          });
-                        }}
-                      >
-                        Mark Paid
-                      </button>
-                    )}
-                    {tenant.status === "OVERDUE" && (
-                      <button
-                        className="px-4 py-1.5 bg-red-50 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-100"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                        }}
-                      >
-                        Remind
-                      </button>
-                    )}
+                            tenantPhone: tenant.phone,
+                            tenantRoom: tenant.room,
+                            pgName: tenant.pgName,
+                            pgUpiId: tenant.pgUpiId || "",
+                            pgAddress: tenant.pgAddress || null,
+                            pgPhone: tenant.pgPhone || null,
+                            paymentMethod: tenant.lastPaymentMethod || null,
+                            paymentDate: tenant.lastPaymentDate || null,
+                            paymentRef: tenant.lastPaymentRef || null,
+                          }}
+                        />
+                      )}
+                      {(tenant.status === "PENDING" ||
+                        tenant.status === "PARTIAL") && (
+                        <button
+                          className="px-4 py-1.5 border border-gray-300 rounded-lg text-sm font-semibold 
+                                    hover:bg-gray-50 text-gray-700"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                            setPaymentInvoice({
+                              id: tenant.id,
+                              billingMonth: new Date().toLocaleString("default", {
+                                month: "long",
+                                year: "numeric",
+                              }),
+                              baseRent: tenant.baseRent,
+                              accumulatedFine: tenant.accumulatedFine,
+                              totalAmount: tenant.amount,
+                              amountPaid: tenant.amountPaid,
+                              tenantName: tenant.name,
+                            });
+                          }}
+                        >
+                          Mark Paid
+                        </button>
+                      )}
+                      {tenant.status === "OVERDUE" && (
+                        <button
+                          className="px-4 py-1.5 bg-red-50 text-red-700 rounded-lg text-sm font-semibold hover:bg-red-100"
+                          onClick={(e) => {
+                            e.stopPropagation();
+                          }}
+                        >
+                          Remind
+                        </button>
+                      )}
+                    </div>
                   </td>
                 </tr>
               ))
@@ -399,40 +439,67 @@ export default function RentLedgerTable({
                     Due: {tenant.dueDate}
                   </span>
                 </div>
-                {(tenant.status === "PENDING" ||
-                  tenant.status === "PARTIAL") && (
-                  <button
-                    className="px-3 py-1.5 border border-gray-200 shadow-sm rounded-lg text-xs font-semibold"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      setPaymentInvoice({
-                        id: tenant.id,
-                        billingMonth: new Date().toLocaleString("default", {
-                          month: "long",
-                          year: "numeric",
-                        }),
+                <div className="flex items-center gap-2">
+                  {tenant.status === "PAID" && tenant.pgName && (
+                    <InvoiceDownloadButton
+                      data={{
+                        invoiceNumber: tenant.invoiceNumber || 1,
+                        invoiceYear: tenant.invoiceYear || new Date().getFullYear(),
+                        billingMonth: tenant.billingMonth,
+                        createdAt: tenant.createdAt || new Date().toISOString(),
+                        dueDate: tenant.dueDate,
                         baseRent: tenant.baseRent,
                         accumulatedFine: tenant.accumulatedFine,
                         totalAmount: tenant.amount,
                         amountPaid: tenant.amountPaid,
                         tenantName: tenant.name,
-                      });
-                    }}
-                  >
-                    Mark Paid
-                  </button>
-                )}
+                        tenantPhone: tenant.phone,
+                        tenantRoom: tenant.room,
+                        pgName: tenant.pgName,
+                        pgUpiId: tenant.pgUpiId || "",
+                        pgAddress: tenant.pgAddress || null,
+                        pgPhone: tenant.pgPhone || null,
+                        paymentMethod: tenant.lastPaymentMethod || null,
+                        paymentDate: tenant.lastPaymentDate || null,
+                        paymentRef: tenant.lastPaymentRef || null,
+                      }}
+                    />
+                  )}
+                  {(tenant.status === "PENDING" ||
+                    tenant.status === "PARTIAL") && (
+                    <button
+                      className="px-3 py-1.5 border border-gray-200 shadow-sm rounded-lg text-xs font-semibold"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setPaymentInvoice({
+                          id: tenant.id,
+                          billingMonth: new Date().toLocaleString("default", {
+                            month: "long",
+                            year: "numeric",
+                          }),
+                          baseRent: tenant.baseRent,
+                          accumulatedFine: tenant.accumulatedFine,
+                          totalAmount: tenant.amount,
+                          amountPaid: tenant.amountPaid,
+                          tenantName: tenant.name,
+                        });
+                      }}
+                    >
+                      Mark Paid
+                    </button>
+                  )}
 
-                {tenant.status === "OVERDUE" && (
-                  <button
-                    className="px-3 py-1.5 bg-red-50 text-red-700 shadow-sm rounded-lg text-xs font-semibold"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                    }}
-                  >
-                    Remind
-                  </button>
-                )}
+                  {tenant.status === "OVERDUE" && (
+                    <button
+                      className="px-3 py-1.5 bg-red-50 text-red-700 shadow-sm rounded-lg text-xs font-semibold"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                      }}
+                    >
+                      Remind
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
           ))

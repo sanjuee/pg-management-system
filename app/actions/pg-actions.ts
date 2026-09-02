@@ -10,6 +10,8 @@ export async function createPGAction(formData: FormData) {
 
   const name = formData.get('name') as string
   const upiId = formData.get('upiId') as string
+  const address = formData.get('address') as string | null
+  const phone = formData.get('phone') as string | null
   
   const billingCycleDate = parseInt(formData.get('billingCycleDate') as string) || 1
   const rentDueDate = parseInt(formData.get('rentDueDate') as string) || 0
@@ -26,6 +28,8 @@ export async function createPGAction(formData: FormData) {
       data: {
         name: name.trim(),
         upiId: upiId.trim(),
+        address: address?.trim() || null,
+        phone: phone?.trim() || null,
         ownerId: user.id,
         billingCycleDate,
         rentDueDate,
@@ -47,6 +51,8 @@ export async function updatePGAction(pgId: string, formData: FormData) {
 
   const name = formData.get('name') as string
   const upiId = formData.get('upiId') as string
+  const address = formData.get('address') as string | null
+  const phone = formData.get('phone') as string | null
   
   const billingCycleDate = parseInt(formData.get('billingCycleDate') as string) || 1
   const rentDueDate = parseInt(formData.get('rentDueDate') as string) || 0
@@ -65,6 +71,8 @@ export async function updatePGAction(pgId: string, formData: FormData) {
       data: {
         name: name.trim(),
         upiId: upiId.trim(),
+        address: address?.trim() || null,
+        phone: phone?.trim() || null,
         billingCycleDate,
         rentDueDate,
         dailyLateFee,

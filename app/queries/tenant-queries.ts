@@ -1,14 +1,28 @@
 import { prisma } from "@/lib/prisma/prisma"
 
 export async function getRentLedgerData(pgId: string) {
-  // 1. Fetch all invoices for the PG
+  // 1. Fetch all invoices for the PG with transactions for PAID invoices
   const invoices = await prisma.invoice.findMany({
     where: { pgId },
     include: { 
       tenant: {
         include: { room: true } // Fetch room details to display room number
+      },
+      pg: {
+        select: { name: true, upiId: true, address: true, phone: true }
+      },
+      transactions: {
+        orderBy: { dateReceived: 'desc' },
+        take: 1, // Most recent payment
       }
-    }
+    },
+    orderBy: { createdAt: 'asc' }
+  });
+
+  // Build a sequential invoice number map per PG
+  const invoiceNumberMap = new Map<string, number>();
+  invoices.forEach((inv, index) => {
+    invoiceNumberMap.set(inv.id, index + 1);
   });
 
   // 2. Define your custom sort priority map
@@ -43,9 +57,22 @@ export async function getRentLedgerData(pgId: string) {
       month: 'short',
       year: 'numeric'
     }),
+    dueDateRaw: inv.dueDate.toISOString(),
     status: inv.status,
+    // PDF Invoice data
+    pgName: inv.pg.name,
+    pgUpiId: inv.pg.upiId,
+    pgAddress: inv.pg.address,
+    pgPhone: inv.pg.phone,
+    invoiceNumber: invoiceNumberMap.get(inv.id) || 1,
+    invoiceYear: inv.createdAt.getFullYear(),
+    createdAt: inv.createdAt.toISOString(),
+    lastPaymentMethod: inv.transactions[0]?.paymentMethod || null,
+    lastPaymentDate: inv.transactions[0]?.dateReceived?.toISOString() || null,
+    lastPaymentRef: inv.transactions[0]?.referenceId || null,
   }));
 }
+
 
 export async function getUnassignedTenantsList(pgId: string) {
   return await prisma.tenant.findMany({

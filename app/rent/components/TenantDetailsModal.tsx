@@ -1,6 +1,7 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, FileDown } from "lucide-react";
+import InvoiceDownloadButton from "./InvoiceDownloadButton";
 
 type TenantDetailsModalProps = {
   tenant: any;
@@ -134,6 +135,34 @@ export default function TenantDetailsModal({
           >
             WhatsApp
           </button>
+
+          {tenant.status === "PAID" && tenant.pgName && (
+            <div className="flex-1 flex items-center justify-center">
+              <InvoiceDownloadButton
+                data={{
+                  invoiceNumber: tenant.invoiceNumber || 1,
+                  invoiceYear: tenant.invoiceYear || new Date().getFullYear(),
+                  billingMonth: tenant.billingMonth,
+                  createdAt: tenant.createdAt || new Date().toISOString(),
+                  dueDate: tenant.dueDate,
+                  baseRent: tenant.baseRent || tenant.amount,
+                  accumulatedFine: tenant.accumulatedFine || 0,
+                  totalAmount: tenant.amount,
+                  amountPaid: tenant.amountPaid || tenant.amount,
+                  tenantName: tenant.name,
+                  tenantPhone: tenant.phone,
+                  tenantRoom: tenant.room,
+                  pgName: tenant.pgName,
+                  pgUpiId: tenant.pgUpiId || "",
+                  pgAddress: tenant.pgAddress || null,
+                  pgPhone: tenant.pgPhone || null,
+                  paymentMethod: tenant.lastPaymentMethod || null,
+                  paymentDate: tenant.lastPaymentDate || null,
+                  paymentRef: tenant.lastPaymentRef || null,
+                }}
+              />
+            </div>
+          )}
 
           {tenant.status !== "PAID" && (
             <button

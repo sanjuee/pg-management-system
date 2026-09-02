@@ -18,6 +18,8 @@ model PG {
   id               String     @id @default(uuid())
   name             String
   upiId            String     // The landlord's UPI ID
+  address          String?    // The full address of the PG
+  phone            String?    // The primary contact number for the PG
   ownerId          String     // Your auth system user ID
   
   // Billing Engine
