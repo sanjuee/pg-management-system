@@ -31,7 +31,6 @@ async function sendTemplate(phone: string, templateName: string, components: any
 export const WhatsApp = {
   // CASE 1: Rent Generated (1st of the month)
   async sendRentGenerated(tenant: any, invoice: any, pg: any) {
-    console.log("Template Payload:", JSON.stringify(invoice, null, 2));
     const dueDate = new Date(invoice.dueDate);
     const dueDateFormatted = dueDate.toLocaleDateString("en-IN", {
       day: "2-digit",
@@ -42,7 +41,7 @@ export const WhatsApp = {
       month: "long",
       year: "numeric",
     });
-    return sendTemplate(tenant.phone, "payment_due_reminder_v1", [
+    return sendTemplate(tenant.phone, "payment_due_reminder_v2", [
       {
         type: "body",
         parameters: [
@@ -103,7 +102,7 @@ export const WhatsApp = {
       month: "long",
       year: "numeric",
     });
-    return sendTemplate(tenant.phone, "rent_payment_overdue_1 ", [
+    return sendTemplate(tenant.phone, "rent_payment_overdue_1", [
       {
         type: "body",
         parameters: [
@@ -151,7 +150,7 @@ export const WhatsApp = {
 
   // CASE 5: Registration Complete
   async sendRegistrationComplete(tenant: any, pg: any, roomName?: string) {
-    return sendTemplate(tenant.phone, "payment_due_reminder_v2", [
+    return sendTemplate(tenant.phone, "payment_due_reminder_v2", [ //Change it to welcome_v1 once approved
       {
         type: "body",
         parameters: [
@@ -161,6 +160,10 @@ export const WhatsApp = {
           { type: "text", text: tenant.rent?.toString() || "0" },
           { type: "text", text: tenant.rent?.toString() || "0" },
         ]
+      },
+      {
+        type: "button", sub_type: "url", index: "0",
+        parameters: [{ type: "text", text: `https://pglord.in/pay/${tenant.id}` }]
       }
     ]);
   }
