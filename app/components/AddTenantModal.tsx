@@ -130,6 +130,20 @@ export default function AddTenantModal({
               />
             </div>
 
+            <div>
+              <label className="block text-[10px] font-bold text-slate-400 uppercase tracking-wider mb-1">
+                Security Deposit (₹)
+              </label>
+              <input
+                type="number"
+                name="securityDeposit"
+                defaultValue={0}
+                placeholder="0"
+                min="0"
+                className="w-full border border-gray-200 rounded-md px-3 py-2 text-sm font-medium focus:outline-none focus:ring-1 focus:ring-accent bg-white placeholder:text-slate-400"
+              />
+            </div>
+
             {/* BILLING START OPTION */}
             {selectedRoomPrice > 0 && (
               <div className="bg-amber-50/60 border border-amber-200/60 rounded-md p-3">

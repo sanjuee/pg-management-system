@@ -14,6 +14,7 @@ export async function createTenantAction(formData: FormData) {
 
   // If no room is selected, rent starts at 0 (will be set when a room is assigned)
   const rent = parseFloat(formData.get("rent") as string) || 0
+  const securityDeposit = parseFloat(formData.get("securityDeposit") as string) || 0
   const roomId = formData.get("roomId") as string
   const skipCurrentMonth = formData.get("skipCurrentMonth") === "on"
 
@@ -29,6 +30,7 @@ export async function createTenantAction(formData: FormData) {
     name,
     phone,
     rent,
+    securityDeposit,
     pgId: pgId,
     roomId: roomId || null,
     
@@ -147,6 +149,7 @@ export async function updateTenantDetailsAction(tenantId: string, formData: Form
   const name = formData.get("name") as string;
   const phone = formData.get("phone") as string;
   const rent = parseFloat(formData.get("rent") as string);
+  const securityDeposit = parseFloat(formData.get("securityDeposit") as string);
 
   if (!name || !phone || isNaN(rent)) {
     return { success: false, error: "All fields are required." };
@@ -155,7 +158,7 @@ export async function updateTenantDetailsAction(tenantId: string, formData: Form
   try {
     await prisma.tenant.update({
       where: { id: tenantId },
-      data: { name, phone, rent }
+      data: { name, phone, rent, ...(isNaN(securityDeposit) ? {} : { securityDeposit }) }
     });
 
     revalidatePath("/pg/[pgId]/rent", "page");
@@ -167,10 +170,26 @@ export async function updateTenantDetailsAction(tenantId: string, formData: Form
   }
 }
 
-export async function deleteTenantAction(tenantId: string) {
+export async function deleteTenantAction(tenantId: string, refundAmount: number = 0, refundMethod: string = 'Cash', refundNote: string = '') {
       if (!tenantId) throw new Error("Tenant ID is required");
 
       try {
+        const tenant = await prisma.tenant.findUnique({ where: { id: tenantId } });
+        if (!tenant) throw new Error("Tenant not found");
+
+        if (refundAmount > 0) {
+          const currentMonth = new Date().toLocaleString("default", { month: "long", year: "numeric" });
+          await prisma.expense.create({
+            data: {
+              pgId: tenant.pgId,
+              category: "Deposit Refund",
+              amount: refundAmount,
+              note: `Refunded to ${tenant.name} (${refundMethod}) - ${refundNote}`,
+              month: currentMonth
+            }
+          });
+        }
+
         await prisma.tenant.delete({
           where: { id: tenantId }
         });
@@ -178,6 +197,7 @@ export async function deleteTenantAction(tenantId: string) {
         revalidatePath("/pg/[pgId]/rent", "page");
         revalidatePath("/pg/[pgId]/rooms", "page");
         revalidatePath("/pg/[pgId]/tenants", "page");
+        revalidatePath("/pg/[pgId]/expenses", "page");
         return { success: true };
       } catch (error) {
         return { success: false, error: "Failed to delete tenant." };

@@ -100,6 +100,7 @@ export async function getAllTenantsDirectory(pgId: string) {
     email: tenant.email,
     rent: tenant.rent,
     room: tenant.room?.roomNumber || "Unassigned",
+    securityDeposit: tenant.securityDeposit,
     joinedDate: new Date(tenant.createdAt).toLocaleDateString('en-IN', {
       day: 'numeric',
       month: 'short',

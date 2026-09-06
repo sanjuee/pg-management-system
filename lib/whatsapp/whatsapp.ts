@@ -4,7 +4,6 @@ const WA_TOKEN = process.env.WHATSAPP_SYSTEM_TOKEN;
 async function sendTemplate(phone: string, templateName: string, components: any[]) {
   const isDev = process.env.NODE_ENV === "development";
   const targetPhone = isDev ? process.env.TEST_RECIPIENT_PHONE : phone;
-
   const response = await fetch(WA_URL, {
     method: "POST",
     headers: {
@@ -22,7 +21,7 @@ async function sendTemplate(phone: string, templateName: string, components: any
       },
     }),
   });
-  
+
   const data = await response.json();
   if (!response.ok) console.error("WA API Error:", data);
   return data;

@@ -1,6 +1,6 @@
 generator client {
   provider = "prisma-client-js"
-  output   = "../app/generated/prisma"
+  output   = "../../app/generated/prisma"
 }
 
 datasource db {
@@ -110,6 +110,9 @@ model Tenant {
   
   roomId         String?   
   room           RoomUnit? @relation(fields: [roomId], references: [id], onDelete: SetNull)
+
+  securityDeposit Float    @default(0)
+
   
   invoices       Invoice[] // Linked to the new billing engine
 

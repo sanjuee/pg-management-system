@@ -5,7 +5,6 @@ import { Edit2, X, Save, Trash2, Loader2, Phone } from "lucide-react"
 
 import toast from "react-hot-toast"
 import { updateTenantDetailsAction, deleteTenantAction } from "@/app/actions/tenant-action"
-import ConfirmModal from "@/app/components/ConfirmModal"
 
 type TenantProfileModalProps = {
   tenant: any
@@ -18,16 +17,16 @@ export default function TenantProfileModal({
 }: TenantProfileModalProps) {
   const [isEditing, setIsEditing] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
-  const [confirmConfig, setConfirmConfig] = useState<{
+  const [deleteConfig, setDeleteConfig] = useState<{
     isOpen: boolean;
-    title: string;
-    message: string;
-    onConfirm: () => void;
+    refundAmount: number | string;
+    refundMethod: string;
+    refundNote: string;
   }>({
     isOpen: false,
-    title: "",
-    message: "",
-    onConfirm: () => {},
+    refundAmount: 0,
+    refundMethod: 'Cash',
+    refundNote: ''
   });
 
   const handleBackdropClick = (e: React.MouseEvent<HTMLDivElement>) => {
@@ -47,26 +46,33 @@ export default function TenantProfileModal({
     }
   }
 
-  const handleDelete = async () => {
-    setConfirmConfig({
-      isOpen: true,
-      title: "Delete Tenant",
-      message: `Are you sure you want to delete ${tenant.name}? This action cannot be undone.`,
-      onConfirm: async () => {
-        setIsDeleting(true)
-        const toastId = toast.loading("Deleting tenant...")
+  const confirmDelete = async () => {
+    setIsDeleting(true)
+    const toastId = toast.loading("Deleting tenant...")
 
-        try {
-          await deleteTenantAction(tenant.id)
-          toast.success("Tenant deleted successfully!", { id: toastId })
-          onClose()
-        } catch (error: any) {
-          toast.error(error.message || "Failed to delete tenant", { id: toastId })
-        } finally {
-          setIsDeleting(false)
-          setConfirmConfig(prev => ({ ...prev, isOpen: false }))
-        }
-      }
+    try {
+      await deleteTenantAction(
+        tenant.id, 
+        Number(deleteConfig.refundAmount) || 0, 
+        deleteConfig.refundMethod, 
+        deleteConfig.refundNote
+      )
+      toast.success("Tenant deleted successfully!", { id: toastId })
+      onClose()
+    } catch (error: any) {
+      toast.error(error.message || "Failed to delete tenant", { id: toastId })
+    } finally {
+      setIsDeleting(false)
+      setDeleteConfig(prev => ({ ...prev, isOpen: false }))
+    }
+  }
+
+  const handleDelete = () => {
+    setDeleteConfig({
+      isOpen: true,
+      refundAmount: tenant.securityDeposit || 0,
+      refundMethod: 'Cash',
+      refundNote: 'Security Deposit Return'
     });
   }
 
@@ -176,6 +182,19 @@ export default function TenantProfileModal({
                   <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Joined Date</p>
                   <p className="font-medium text-gray-900">{tenant.joinedDate}</p>
               </div>
+              <div className="bg-gray-50 p-3 rounded-lg border border-transparent focus-within:border-indigo-200 transition-colors">
+                <p className="text-xs text-gray-500 uppercase font-semibold mb-1">Security Deposit</p>
+                {isEditing ? (
+                  <input 
+                    name="securityDeposit" 
+                    type="number"
+                    defaultValue={tenant.securityDeposit || 0}
+                    className="w-full font-bold text-gray-900 bg-white border border-gray-300 rounded-md px-2 py-1 outline-none focus:ring-2 focus:ring-indigo-500"
+                  />
+                ) : (
+                  <p className="font-bold text-gray-900">₹{(tenant.securityDeposit || 0).toLocaleString('en-IN')}</p>
+                )}
+              </div>
             </div>
           </div>
 
@@ -218,13 +237,92 @@ export default function TenantProfileModal({
           </div>
         </form>
       </div>
-      <ConfirmModal 
-        isOpen={confirmConfig.isOpen}
-        onClose={() => setConfirmConfig(prev => ({ ...prev, isOpen: false }))}
-        title={confirmConfig.title}
-        message={confirmConfig.message}
-        onConfirm={confirmConfig.onConfirm}
-      />
+      
+      {/* Delete / Refund Modal */}
+      {deleteConfig.isOpen && (
+        <div className="fixed inset-0 bg-black/60 z-[60] flex items-center justify-center p-4 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl animate-in zoom-in-95 duration-200">
+            <h3 className="text-xl font-bold text-gray-900 mb-2">Delete Tenant</h3>
+            <p className="text-gray-500 mb-6 text-sm">
+              Are you sure you want to delete <span className="font-semibold text-gray-700">{tenant.name}</span>? This will also unassign them from their room.
+            </p>
+
+            {(tenant.securityDeposit || 0) > 0 && (
+              <div className="space-y-4 mb-6 bg-gray-50 p-4 rounded-xl border border-gray-100">
+                <div>
+                  <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                    Refund Amount (₹)
+                  </label>
+                  <input
+                    type="number"
+                    value={deleteConfig.refundAmount}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      setDeleteConfig(prev => ({ 
+                        ...prev, 
+                        refundAmount: val === '' ? '' : (isNaN(Number(val)) ? prev.refundAmount : val)
+                      }));
+                    }}
+                    onFocus={(e) => e.target.select()}
+                    placeholder="0"
+                    className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 outline-none bg-white"
+                  />
+                  <p className="text-xs text-gray-400 mt-1">Leave as 0 if no refund is being paid.</p>
+                </div>
+
+                {Number(deleteConfig.refundAmount) > 0 && (
+                  <>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                        Payment Method
+                      </label>
+                      <select
+                        value={deleteConfig.refundMethod}
+                        onChange={(e) => setDeleteConfig(prev => ({ ...prev, refundMethod: e.target.value }))}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 outline-none bg-white"
+                      >
+                        <option value="Cash">Cash</option>
+                        <option value="UPI">UPI</option>
+                        <option value="Bank Transfer">Bank Transfer</option>
+                      </select>
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase mb-1">
+                        Note
+                      </label>
+                      <input
+                        type="text"
+                        value={deleteConfig.refundNote}
+                        onChange={(e) => setDeleteConfig(prev => ({ ...prev, refundNote: e.target.value }))}
+                        className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-red-500 outline-none bg-white"
+                        placeholder="e.g. Returned after final inspection"
+                      />
+                    </div>
+                  </>
+                )}
+              </div>
+            )}
+
+            <div className="flex gap-3">
+              <button
+                onClick={() => setDeleteConfig(prev => ({ ...prev, isOpen: false }))}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-white border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={confirmDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-2 bg-red-600 text-white rounded-xl text-sm font-semibold hover:bg-red-700 transition flex items-center justify-center gap-2"
+              >
+                {isDeleting ? <Loader2 size={16} className="animate-spin" /> : <Trash2 size={16} />}
+                Confirm Delete
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   )
 }
