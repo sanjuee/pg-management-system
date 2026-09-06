@@ -2,6 +2,7 @@
 
 import { prisma } from "@/lib/prisma/prisma"
 import { revalidatePath } from "next/cache"
+import { WhatsApp } from "@/lib/whatsapp/whatsapp"
 
 export async function createTenantAction(formData: FormData) {
   const pgId = formData.get("pgId") as string
@@ -16,6 +17,13 @@ export async function createTenantAction(formData: FormData) {
   const roomId = formData.get("roomId") as string
   const skipCurrentMonth = formData.get("skipCurrentMonth") === "on"
 
+  const pg = await prisma.pG.findUnique({ where: { id: pgId } })
+  const rentDueDateDays = pg?.rentDueDate || 0
+  
+  const today = new Date()
+  const dueDate = new Date(today)
+  dueDate.setDate(today.getDate() + rentDueDateDays)
+
   const newTenant = await prisma.tenant.create({
   data: {
     name,
@@ -28,17 +36,38 @@ export async function createTenantAction(formData: FormData) {
     ...(!skipCurrentMonth && roomId && {
       invoices: {
         create: {
-          billingMonth: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+          billingMonth: today.toLocaleString('default', { month: 'long', year: 'numeric' }),
           baseRent: rent,
           totalAmount: rent, // baseRent + 0 fines
           status: "PENDING",
-          dueDate: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
+          dueDate: dueDate,
           pgId: pgId
         }
       }
     })
+  },
+  include: {
+    invoices: true,
+    room: true,
+    pg: true
   }
 })
+
+  if (roomId && newTenant.room) {
+    try {
+      await WhatsApp.sendRegistrationComplete(newTenant, newTenant.pg, newTenant.room.roomNumber);
+    } catch (err) {
+      console.error("Error sending registration WhatsApp message:", err);
+    }
+  }
+
+  if (!skipCurrentMonth && roomId && newTenant.invoices && newTenant.invoices.length > 0) {
+    try {
+      await WhatsApp.sendRentGenerated(newTenant, newTenant.invoices[0], newTenant.pg);
+    } catch (err) {
+      console.error("Error sending rent generation WhatsApp message:", err);
+    }
+  }
 
   revalidatePath("/pg/[pgId]/rent", "page")
   revalidatePath("/pg/[pgId]/rooms", "page")
@@ -70,21 +99,44 @@ export async function assignExistingTenantAction(tenantId: string, roomId: strin
 
   const tenant = await prisma.tenant.update({
     where: { id: tenantId },
-    data: { roomId, rent }
+    data: { roomId, rent },
+    include: { pg: true, room: true }
   })
 
+  let invoice = null;
+
   if (!skipCurrentMonth) {
-    await prisma.invoice.create({
+    const today = new Date();
+    const dueDate = new Date(today);
+    dueDate.setDate(today.getDate() + (tenant.pg?.rentDueDate || 0));
+
+    invoice = await prisma.invoice.create({
       data: {
         tenantId,
         pgId: tenant.pgId,
-        billingMonth: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+        billingMonth: today.toLocaleString('default', { month: 'long', year: 'numeric' }),
         baseRent: rent,
         totalAmount: rent,
         status: "PENDING",
-        dueDate: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
+        dueDate: dueDate,
       }
     });
+  }
+
+  if (roomId && tenant.room) {
+    try {
+      await WhatsApp.sendRegistrationComplete(tenant, tenant.pg, tenant.room.roomNumber);
+    } catch (err) {
+      console.error("Error sending registration WhatsApp message:", err);
+    }
+  }
+
+  if (invoice) {
+    try {
+      await WhatsApp.sendRentGenerated(tenant, invoice, tenant.pg);
+    } catch (err) {
+      console.error("Error sending rent generation WhatsApp message:", err);
+    }
   }
 
   revalidatePath("/pg/[pgId]/rooms", "page")

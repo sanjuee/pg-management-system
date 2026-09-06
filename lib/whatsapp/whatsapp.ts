@@ -147,5 +147,20 @@ export const WhatsApp = {
         ]
       }
     ]);
+  },
+
+  // CASE 5: Registration Complete
+  async sendRegistrationComplete(tenant: any, pg: any, roomName?: string) {
+    return sendTemplate(tenant.phone, "registration_complete", [
+      {
+        type: "body",
+        parameters: [
+          { type: "text", text: tenant.name || "Tenant" },
+          { type: "text", text: pg.name || "PG Accommodations" },
+          { type: "text", text: roomName || tenant.roomId || "TBD" },
+          { type: "text", text: tenant.rent?.toString() || "0" },
+        ]
+      }
+    ]);
   }
 };
