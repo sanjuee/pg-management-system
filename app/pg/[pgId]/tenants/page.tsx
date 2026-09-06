@@ -1,6 +1,6 @@
 import { getAllTenantsDirectory } from "@/app/queries/tenant-queries";
-import { getRoomBasicDetails } from "@/app/queries/room-queries";
-import TenantsTable from "@/app/tenants/components/TenantsTable";
+import { getAvailableRoomsList } from "@/app/queries/room-queries";
+import TenantsTable from "./components/TenantsTable";
 import AddTenantButton from "@/app/components/AddTenantButton";
 
 export default async function TenantsPage({
@@ -12,7 +12,7 @@ export default async function TenantsPage({
 
   const [tenantsData, availableRooms] = await Promise.all([
     getAllTenantsDirectory(pgId),
-    getRoomBasicDetails(pgId),
+    getAvailableRoomsList(pgId),
   ]);
 
   return (

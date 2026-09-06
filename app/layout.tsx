@@ -2,7 +2,7 @@ import type { Metadata } from "next";
 import { Hanken_Grotesk } from "next/font/google";
 import "./globals.css";
 import ClientLayout from "./ClientLayout";
-import { getRoomBasicDetails } from "@/app/queries/room-queries";
+import { getAvailableRoomsList } from "@/app/queries/room-queries";
 import { headers } from "next/headers";
 import { Toaster } from "react-hot-toast";
 import { getOwnerPGs } from "./queries/pg-queries";
@@ -65,7 +65,7 @@ export default async function RootLayout({
   const pgIdMatch = pathname.match(/^\/pg\/([^/]+)/);
   const pgId = pgIdMatch ? pgIdMatch[1] : (pgs[0]?.id ?? "");
 
-  const availableRooms = pgId ? await getRoomBasicDetails(pgId) : [];
+  const availableRooms = pgId ? await getAvailableRoomsList(pgId) : [];
 
   return (
     <html lang="en" className={hankenGrotesk.variable} suppressHydrationWarning>

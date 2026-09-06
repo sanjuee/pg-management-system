@@ -22,7 +22,7 @@ export async function createRoomTypeAction(formData: FormData) {
   })
 
   // Refreshes the page data instantly
-  revalidatePath("/rooms")
+  revalidatePath("/pg/[pgId]/rooms", "page")
 }
 
 // ------------------------------------------------------------------
@@ -50,7 +50,7 @@ export async function createRoomUnitAction(formData: FormData) {
     data: { pgId, roomTypeId, roomNumber }
   })
 
-  revalidatePath("/rooms")
+  revalidatePath("/pg/[pgId]/rooms", "page")
 }
 
 
@@ -89,7 +89,7 @@ export async function updateRoomUnitAction(roomId: string, formData: FormData) {
     data: { roomNumber, roomTypeId }
   })
 
-  revalidatePath("/rooms")
+  revalidatePath("/pg/[pgId]/rooms", "page")
   return { success: true }
 }
 
@@ -111,7 +111,7 @@ export async function deleteRoomUnitAction(roomId: string) {
     where: { id: roomId }
   })
 
-  revalidatePath("/rooms")
+  revalidatePath("/pg/[pgId]/rooms", "page")
 }
 
 
@@ -158,8 +158,8 @@ export async function updateRoomTypeAction(formData: FormData) {
     data: { rent: price }
   })
 
-  revalidatePath("/rooms")
-  revalidatePath("/rent")
+  revalidatePath("/pg/[pgId]/rooms", "page")
+  revalidatePath("/pg/[pgId]/rent", "page")
   return { success: true }
 }
 
@@ -181,5 +181,5 @@ export async function deleteRoomTypeAction(id: string) {
     where: { id }
   })
 
-  revalidatePath("/rooms")
+  revalidatePath("/pg/[pgId]/rooms", "page")
 }

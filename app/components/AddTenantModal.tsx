@@ -131,27 +131,29 @@ export default function AddTenantModal({
             </div>
 
             {/* BILLING START OPTION */}
-            <div className="bg-amber-50/60 border border-amber-200/60 rounded-md p-3">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="skipCurrentMonth"
-                  checked={skipCurrentMonth}
-                  onChange={(e) => setSkipCurrentMonth(e.target.checked)}
-                  className="mt-0.5 h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent/30 accent-accent"
-                />
-                <div>
-                  <span className="text-sm font-semibold text-slate-700">
-                    Apply rent from next month
-                  </span>
-                  <p className="text-xs text-slate-500 mt-0.5">
-                    {skipCurrentMonth
-                      ? "No invoice will be created for the current month. "
-                      : "If unchecked, Rent invoice for the current month will be generated immediately."}
-                  </p>
-                </div>
-              </label>
-            </div>
+            {selectedRoomPrice > 0 && (
+              <div className="bg-amber-50/60 border border-amber-200/60 rounded-md p-3">
+                <label className="flex items-start gap-3 cursor-pointer">
+                  <input
+                    type="checkbox"
+                    name="skipCurrentMonth"
+                    checked={skipCurrentMonth}
+                    onChange={(e) => setSkipCurrentMonth(e.target.checked)}
+                    className="mt-0.5 h-4 w-4 rounded border-gray-300 text-accent focus:ring-accent/30 accent-accent"
+                  />
+                  <div>
+                    <span className="text-sm font-semibold text-slate-700">
+                      Apply rent from next month
+                    </span>
+                    <p className="text-xs text-slate-500 mt-0.5">
+                      {skipCurrentMonth
+                        ? "No invoice will be created for the current month. "
+                        : "If unchecked, Rent invoice for the current month will be generated immediately."}
+                    </p>
+                  </div>
+                </label>
+              </div>
+            )}
 
             <button
               type="submit"

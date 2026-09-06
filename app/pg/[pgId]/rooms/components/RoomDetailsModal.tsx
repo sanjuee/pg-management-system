@@ -53,6 +53,7 @@ export default function RoomDetailsModal({
   const [isEditing, setIsEditing] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false)
   const [selectedTenantId, setSelectedTenantId] = useState("")
+  const [skipCurrentMonth, setSkipCurrentMonth] = useState(false)
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     title: string;
@@ -113,10 +114,11 @@ export default function RoomDetailsModal({
       return
     }
     try {
-      await assignExistingTenantAction(selectedTenantId, room.id)
+      await assignExistingTenantAction(selectedTenantId, room.id, skipCurrentMonth)
       toast.success("Tenant assigned successfully!")
       setIsAssigning(false)
       setSelectedTenantId("")
+      setSkipCurrentMonth(false)
       // Next.js auto-refreshes the room data
     } catch (error) {
       toast.error("Failed to assign tenant")
@@ -293,6 +295,21 @@ export default function RoomDetailsModal({
                     <option key={t.id} value={t.id}>{t.name}</option>
                   ))}
                 </select>
+
+                <div className="bg-amber-50/60 border border-amber-200/60 rounded-md p-3">
+                  <label className="flex items-start gap-3 cursor-pointer">
+                    <input
+                      type="checkbox"
+                      checked={skipCurrentMonth}
+                      onChange={(e) => setSkipCurrentMonth(e.target.checked)}
+                      className="mt-0.5 h-4 w-4 rounded border-gray-300 text-indigo-600 focus:ring-indigo-500/30 accent-indigo-600"
+                    />
+                    <div>
+                      <span className="text-xs font-semibold text-slate-700">Apply rent from next month</span>
+                    </div>
+                  </label>
+                </div>
+
                 <div className="flex gap-2">
                   <button onClick={handleAssignExisting} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg text-sm transition">Assign</button>
                   <button onClick={() => setIsAssigning(false)} className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2 rounded-lg text-sm transition">Cancel</button>

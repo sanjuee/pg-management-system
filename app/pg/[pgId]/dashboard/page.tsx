@@ -6,7 +6,7 @@ import {
   getOrphanedTenants,
   getRecentPayments,
 } from "@/app/queries/dashboard-queries";
-import { getRoomBasicDetails } from "@/app/queries/room-queries";
+import { getAvailableRoomsList } from "@/app/queries/room-queries";
 
 import RevenueProgressBar from "./components/RevenueProgressBar";
 import OverdueAlertCard from "./components/OverdueAlertCard";
@@ -32,7 +32,7 @@ export default async function DashboardPage({
       getOccupancyMetrics(pgId),
       getOrphanedTenants(pgId),
       getRecentPayments(pgId),
-      getRoomBasicDetails(pgId),
+      getAvailableRoomsList(pgId),
     ]);
 
   return (

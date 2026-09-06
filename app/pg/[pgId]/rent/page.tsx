@@ -1,6 +1,6 @@
 import { getRentLedgerData } from "@/app/queries/tenant-queries";
 import { getRentSummaryStats } from "@/app/queries/summery-queries";
-import RentLedgerTable from "@/app/rent/components/RentLedgerTable";
+import RentLedgerTable from "./components/RentLedgerTable";
 
 export default async function RentPage({
   params,
@@ -19,7 +19,9 @@ export default async function RentPage({
       {/* HEADER */}
       <div className="flex flex-col sm:flex-row sm:justify-between sm:items-center gap-4">
         <div>
-          <h1 className="text-3xl font-bold tracking-tight text-primary">Tenant Rent</h1>
+          <h1 className="text-3xl font-bold tracking-tight text-primary">
+            Tenant Rent
+          </h1>
           <p className="text-slate-500 font-medium">
             Manage rent collection and monitor payment statuses.
           </p>

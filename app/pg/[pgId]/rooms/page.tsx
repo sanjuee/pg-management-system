@@ -1,6 +1,9 @@
-import { getFlattenedRooms, getRoomTypesList } from "@/app/queries/room-queries";
+import {
+  getFlattenedRooms,
+  getRoomTypesList,
+} from "@/app/queries/room-queries";
 import { getUnassignedTenantsList } from "@/app/queries/tenant-queries";
-import RoomInventoryGrid from "@/app/rooms/components/RoomInventoryGrid";
+import RoomInventoryGrid from "./components/RoomInventoryGrid";
 
 export default async function RoomsPage({
   params,

@@ -55,7 +55,7 @@ export async function recordPaymentAction(formData: FormData) {
       })
     ])
 
-    revalidatePath("/rent")
+    revalidatePath("/pg/[pgId]/rent", "page")
     return { success: true }
 
   } catch (error) {

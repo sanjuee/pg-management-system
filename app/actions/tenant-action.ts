@@ -24,8 +24,8 @@ export async function createTenantAction(formData: FormData) {
     pgId: pgId,
     roomId: roomId || null,
     
-    // Only create an invoice for the current month if not skipped
-    ...(!skipCurrentMonth && {
+    // Only create an invoice for the current month if not skipped AND a room is assigned
+    ...(!skipCurrentMonth && roomId && {
       invoices: {
         create: {
           billingMonth: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
@@ -40,8 +40,9 @@ export async function createTenantAction(formData: FormData) {
   }
 })
 
-  revalidatePath("/rent")
-  revalidatePath("/rooms")
+  revalidatePath("/pg/[pgId]/rent", "page")
+  revalidatePath("/pg/[pgId]/rooms", "page")
+  revalidatePath("/pg/[pgId]/tenants", "page")
 }
 
 export async function unassignTenantAction(tenantId: string) {
@@ -51,11 +52,12 @@ export async function unassignTenantAction(tenantId: string) {
   })
 
   // Refresh both pages to reflect the vacancy
-  revalidatePath("/rooms")
-  revalidatePath("/rent")
+  revalidatePath("/pg/[pgId]/rooms", "page")
+  revalidatePath("/pg/[pgId]/rent", "page")
+  
 }
 
-export async function assignExistingTenantAction(tenantId: string, roomId: string) {
+export async function assignExistingTenantAction(tenantId: string, roomId: string, skipCurrentMonth: boolean = false) {
   if (!tenantId || !roomId) throw new Error("Missing tenant or room ID");
 
   // Look up the room's price to auto-set the tenant's rent
@@ -66,13 +68,27 @@ export async function assignExistingTenantAction(tenantId: string, roomId: strin
 
   const rent = room?.roomType?.price ?? 0
 
-  await prisma.tenant.update({
+  const tenant = await prisma.tenant.update({
     where: { id: tenantId },
     data: { roomId, rent }
   })
 
-  revalidatePath("/rooms")
-  revalidatePath("/rent")
+  if (!skipCurrentMonth) {
+    await prisma.invoice.create({
+      data: {
+        tenantId,
+        pgId: tenant.pgId,
+        billingMonth: new Date().toLocaleString('default', { month: 'long', year: 'numeric' }),
+        baseRent: rent,
+        totalAmount: rent,
+        status: "PENDING",
+        dueDate: new Date(new Date().getFullYear(), new Date().getMonth(), 5),
+      }
+    });
+  }
+
+  revalidatePath("/pg/[pgId]/rooms", "page")
+  revalidatePath("/pg/[pgId]/rent", "page")
 }
 
 export async function updateTenantDetailsAction(tenantId: string, formData: FormData) {
@@ -90,8 +106,9 @@ export async function updateTenantDetailsAction(tenantId: string, formData: Form
       data: { name, phone, rent }
     });
 
-    revalidatePath("/rent");
-    revalidatePath("/rooms");
+    revalidatePath("/pg/[pgId]/rent", "page");
+    revalidatePath("/pg/[pgId]/rooms", "page");
+    revalidatePath("/pg/[pgId]/tenants", "page");
     return { success: true };
   } catch (error) {
     return { success: false, error: "Failed to update tenant details." };
@@ -106,8 +123,9 @@ export async function deleteTenantAction(tenantId: string) {
           where: { id: tenantId }
         });
 
-        revalidatePath("/rent");
-        revalidatePath("/rooms");
+        revalidatePath("/pg/[pgId]/rent", "page");
+        revalidatePath("/pg/[pgId]/rooms", "page");
+        revalidatePath("/pg/[pgId]/tenants", "page");
         return { success: true };
       } catch (error) {
         return { success: false, error: "Failed to delete tenant." };
