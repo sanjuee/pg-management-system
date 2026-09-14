@@ -43,6 +43,9 @@ model Invoice {
   totalAmount     Float    // baseRent + accumulatedFine
   amountPaid      Float    @default(0) 
   
+  paymentLinkId   String?  // Cashfree Link ID
+  paymentLinkUrl  String?  // Cashfree generated Payment Link Url
+  
   status          PaymentStatus   @default(PENDING)
   dueDate         DateTime 
 

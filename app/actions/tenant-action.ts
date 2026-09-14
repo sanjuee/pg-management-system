@@ -3,6 +3,7 @@
 import { prisma } from "@/lib/prisma/prisma"
 import { revalidatePath } from "next/cache"
 import { WhatsApp } from "@/lib/whatsapp/whatsapp"
+import { createPaymentLink } from "@/lib/cashfree/cashfree"
 
 export async function createTenantAction(formData: FormData) {
   const pgId = formData.get("pgId") as string
@@ -65,9 +66,20 @@ export async function createTenantAction(formData: FormData) {
 
   if (!skipCurrentMonth && roomId && newTenant.invoices && newTenant.invoices.length > 0) {
     try {
-      await WhatsApp.sendRentGenerated(newTenant, newTenant.invoices[0], newTenant.pg);
+      const invoice = newTenant.invoices[0];
+      const paymentLinkResponse = await createPaymentLink(invoice, newTenant, newTenant.rent);
+      
+      const updatedInvoice = await prisma.invoice.update({
+        where: { id: invoice.id },
+        data: {
+          paymentLinkId: paymentLinkResponse.link_id,
+          paymentLinkUrl: paymentLinkResponse.link_url
+        }
+      });
+
+      await WhatsApp.sendRentGenerated(newTenant, updatedInvoice, newTenant.pg);
     } catch (err) {
-      console.error("Error sending rent generation WhatsApp message:", err);
+      console.error("Error creating payment link or sending rent generation WhatsApp message:", err);
     }
   }
 
@@ -135,9 +147,19 @@ export async function assignExistingTenantAction(tenantId: string, roomId: strin
 
   if (invoice) {
     try {
-      await WhatsApp.sendRentGenerated(tenant, invoice, tenant.pg);
+      const paymentLinkResponse = await createPaymentLink(invoice, tenant, rent);
+      
+      const updatedInvoice = await prisma.invoice.update({
+        where: { id: invoice.id },
+        data: {
+          paymentLinkId: paymentLinkResponse.link_id,
+          paymentLinkUrl: paymentLinkResponse.link_url
+        }
+      });
+
+      await WhatsApp.sendRentGenerated(tenant, updatedInvoice, tenant.pg);
     } catch (err) {
-      console.error("Error sending rent generation WhatsApp message:", err);
+      console.error("Error creating payment link or sending rent generation WhatsApp message:", err);
     }
   }
 

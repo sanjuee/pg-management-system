@@ -1,5 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma/prisma";
+import { createPaymentLink } from "@/lib/cashfree/cashfree";
+import { WhatsApp } from "@/lib/whatsapp/whatsapp";
 
 const CRON_SECRET = process.env.CRON_SECRET;
 
@@ -16,7 +18,11 @@ export async function GET(request: Request) {
     
     // Fetch all PGs and their tenants
     const pgs = await prisma.pG.findMany({
-      include: { tenants: true }
+      include: { 
+        tenants: {
+          include: { room: true }
+        }
+      }
     });
 
     let newInvoicesCreated = 0;
@@ -35,11 +41,11 @@ export async function GET(request: Request) {
             },
           });
 
-          if (!existingInvoice) {
+          if (!existingInvoice && tenant.rent > 0) {
             // Calculate due date 
             const dueDate = new Date(today.getFullYear(), today.getMonth(), pg.rentDueDate);
 
-            await prisma.invoice.create({
+            const newInvoice = await prisma.invoice.create({
               data: {
                 billingMonth: currentMonthName,
                 baseRent: tenant.rent,
@@ -52,6 +58,23 @@ export async function GET(request: Request) {
                 pgId: pg.id,
               },
             });
+
+            try {
+              const paymentLinkResponse = await createPaymentLink(newInvoice, tenant, tenant.rent);
+              
+              await prisma.invoice.update({
+                where: { id: newInvoice.id },
+                data: {
+                  paymentLinkId: paymentLinkResponse.link_id,
+                  paymentLinkUrl: paymentLinkResponse.link_url,
+                },
+              });
+
+              await WhatsApp.sendRentGenerated(tenant, newInvoice, pg);
+            } catch (error) {
+              console.error("Failed to create payment link or send WhatsApp for invoice", newInvoice.id, error);
+            }
+
             newInvoicesCreated++;
           }
         }

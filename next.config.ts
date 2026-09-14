@@ -1,6 +1,14 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  allowedDevOrigins: ["bash-legwork-uphill.ngrok-free.dev"],
+  experimental: {
+    serverActions: {
+      allowedOrigins: ["bash-legwork-uphill.ngrok-free.dev",
+        "localhost:3000"
+      ],
+    },
+  },
   serverExternalPackages: [
     "@react-pdf/renderer",
     "@react-pdf/layout",
