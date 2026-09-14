@@ -1,11 +1,12 @@
 "use client"
 
-import { X, AlertTriangle } from "lucide-react"
+import { useState } from "react"
+import { X, AlertTriangle, Loader2 } from "lucide-react"
 
 type ConfirmModalProps = {
   isOpen: boolean
   onClose: () => void
-  onConfirm: () => void
+  onConfirm: () => void | Promise<void>
   title?: string
   message: string
   confirmText?: string
@@ -23,6 +24,8 @@ export default function ConfirmModal({
   cancelText = "Cancel",
   isDestructive = true
 }: ConfirmModalProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
+
   if (!isOpen) return null
 
   return (
@@ -37,7 +40,11 @@ export default function ConfirmModal({
               <h2 className="text-xl font-bold text-slate-900">{title}</h2>
             </div>
           </div>
-          <button onClick={onClose} className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition">
+          <button 
+            onClick={onClose} 
+            disabled={isSubmitting}
+            className="p-2 text-slate-400 hover:text-slate-600 rounded-full hover:bg-slate-100 transition disabled:opacity-50 disabled:cursor-not-allowed"
+          >
             <X size={20} />
           </button>
         </div>
@@ -50,21 +57,33 @@ export default function ConfirmModal({
           <div className="flex gap-3">
             <button
               onClick={onClose}
-              className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition"
+              disabled={isSubmitting}
+              className="flex-1 px-4 py-2.5 bg-slate-100 hover:bg-slate-200 text-slate-700 rounded-xl text-sm font-semibold transition disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {cancelText}
             </button>
             <button
-              onClick={() => {
-                onConfirm()
-                onClose()
+              disabled={isSubmitting}
+              onClick={async () => {
+                setIsSubmitting(true)
+                try {
+                  await onConfirm()
+                  onClose()
+                } catch (error) {
+                  console.error(error)
+                } finally {
+                  setIsSubmitting(false)
+                }
               }}
-              className={`flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-semibold transition shadow-sm ${
+              className={`flex-1 px-4 py-2.5 text-white rounded-xl text-sm font-semibold transition shadow-sm flex items-center justify-center gap-2 ${
+                isSubmitting ? "opacity-70 cursor-not-allowed " : ""
+              }${
                 isDestructive 
                   ? 'bg-red-600 hover:bg-red-700' 
                   : 'bg-indigo-600 hover:bg-indigo-700'
               }`}
             >
+              {isSubmitting && <Loader2 size={16} className="animate-spin" />}
               {confirmText}
             </button>
           </div>

@@ -16,6 +16,7 @@ export default function TenantProfileModal({
   onClose, 
 }: TenantProfileModalProps) {
   const [isEditing, setIsEditing] = useState(false)
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const [isDeleting, setIsDeleting] = useState(false)
   const [deleteConfig, setDeleteConfig] = useState<{
     isOpen: boolean;
@@ -36,13 +37,18 @@ export default function TenantProfileModal({
   }
 
   const handleSave = async (formData: FormData) => {
-    const result = await updateTenantDetailsAction(tenant.id, formData)
-    
-    if (result?.success === false) {
-      toast.error(result.error || "Failed to update tenant")
-    } else {
-      toast.success("Tenant details updated!")
-      setIsEditing(false)
+    setIsSubmitting(true)
+    try {
+      const result = await updateTenantDetailsAction(tenant.id, formData)
+      
+      if (result?.success === false) {
+        toast.error(result.error || "Failed to update tenant")
+      } else {
+        toast.success("Tenant details updated!")
+        setIsEditing(false)
+      }
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -83,7 +89,11 @@ export default function TenantProfileModal({
     >
       <div className="bg-white rounded-2xl w-full max-w-md overflow-hidden shadow-2xl animate-in fade-in zoom-in-95 duration-200">
         
-        <form action={handleSave}>
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          const formData = new FormData(e.currentTarget);
+          await handleSave(formData);
+        }}>
           {/* Modal Header */}
           <div className="p-6 border-b border-gray-100 flex justify-between items-start bg-gray-50/50">
             <div className="flex items-center gap-4">
@@ -211,9 +221,11 @@ export default function TenantProfileModal({
                 </button>
                 <button 
                   type="submit"
-                  className="flex-[2] flex justify-center items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 shadow-sm transition"
+                  disabled={isSubmitting}
+                  className="flex-[2] flex justify-center items-center gap-2 px-4 py-2.5 bg-indigo-600 text-white rounded-xl text-sm font-semibold hover:bg-indigo-700 shadow-sm transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <Save size={16} /> Save Changes
+                  {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Save size={16} />}
+                  Save Changes
                 </button>
               </>
             ) : (

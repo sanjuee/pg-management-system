@@ -1,7 +1,8 @@
 "use client"
 
+import { useState } from "react"
 import { createRoomUnitAction } from "@/app/actions/room-actions"
-import { X, Bed } from "lucide-react"
+import { X, Bed, Loader2 } from "lucide-react"
 
 type AddRoomModalProps = {
   isOpen: boolean
@@ -11,6 +12,7 @@ type AddRoomModalProps = {
 }
 
 export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRoomModalProps) {
+  const [isSubmitting, setIsSubmitting] = useState(false)
 
   if (!isOpen) return null
 
@@ -31,9 +33,16 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
 
         {/* FORM CONTENT CONTAINER */}
         <div className="p-5">
-            <form action={async (formData) => {
-              await createRoomUnitAction(formData)
-              onClose() // Close modal on success
+            <form onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              setIsSubmitting(true)
+              try {
+                await createRoomUnitAction(formData)
+                onClose() // Close modal on success
+              } finally {
+                setIsSubmitting(false)
+              }
             }} className="space-y-4">
               <input type="hidden" name="pgId" value={pgId} />
 
@@ -56,10 +65,11 @@ export default function AddRoomModal({ isOpen, onClose, pgId, roomTypes }: AddRo
 
               <button 
                 type="submit" 
-                disabled={roomTypes.length === 0}
-                className="w-full bg-primary hover:bg-slate-800 text-white font-semibold py-2.5 rounded-md shadow-sm transition mt-2 disabled:opacity-40 disabled:cursor-not-allowed text-sm"
+                disabled={roomTypes.length === 0 || isSubmitting}
+                className="w-full flex items-center justify-center gap-2 bg-primary hover:bg-slate-800 text-white font-semibold py-2.5 rounded-md shadow-sm transition mt-2 disabled:opacity-40 disabled:cursor-not-allowed text-sm"
               >
-                Deploy Room Unit
+                {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+                {isSubmitting ? "Deploying..." : "Deploy Room Unit"}
               </button>
             </form>
         </div>

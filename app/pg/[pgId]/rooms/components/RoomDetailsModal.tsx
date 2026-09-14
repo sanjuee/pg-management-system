@@ -11,6 +11,7 @@ import {
   UserMinus,
   Save,
   UserCheck,
+  Loader2,
 } from "lucide-react";
 import {
   deleteRoomUnitAction,
@@ -51,7 +52,9 @@ export default function RoomDetailsModal({
 }: RoomDetailsModalProps) {
 
   const [isEditing, setIsEditing] = useState(false);
+  const [isEditingSubmit, setIsEditingSubmit] = useState(false);
   const [isAssigning, setIsAssigning] = useState(false)
+  const [isAssigningSubmit, setIsAssigningSubmit] = useState(false)
   const [selectedTenantId, setSelectedTenantId] = useState("")
   const [skipCurrentMonth, setSkipCurrentMonth] = useState(false)
   const [confirmConfig, setConfirmConfig] = useState<{
@@ -114,6 +117,7 @@ export default function RoomDetailsModal({
       return
     }
     try {
+      setIsAssigningSubmit(true)
       await assignExistingTenantAction(selectedTenantId, room.id, skipCurrentMonth)
       toast.success("Tenant assigned successfully!")
       setIsAssigning(false)
@@ -122,6 +126,8 @@ export default function RoomDetailsModal({
       // Next.js auto-refreshes the room data
     } catch (error) {
       toast.error("Failed to assign tenant")
+    } finally {
+      setIsAssigningSubmit(false)
     }
   }
 
@@ -134,15 +140,22 @@ export default function RoomDetailsModal({
           {isEditing ? (
             <form
               className="flex-1 mr-4 space-y-3"
-              action={async (formData) => {
-                // Await the structured validation object returned from the server
-                const result = await updateRoomUnitAction(room.id, formData);
+              onSubmit={async (e) => {
+                e.preventDefault();
+                const formData = new FormData(e.currentTarget);
+                setIsEditingSubmit(true);
+                try {
+                  // Await the structured validation object returned from the server
+                  const result = await updateRoomUnitAction(room.id, formData);
 
-                if (result?.success === false || result?.error) {
-                  toast.error(result.error|| "An Error Occured!"); // Triggers sleek error notification message
-                } else {
-                  setIsEditing(false);
-                  toast.success("Room updated successfully!");
+                  if (result?.success === false || result?.error) {
+                    toast.error(result.error|| "An Error Occured!"); // Triggers sleek error notification message
+                  } else {
+                    setIsEditing(false);
+                    toast.success("Room updated successfully!");
+                  }
+                } finally {
+                  setIsEditingSubmit(false);
                 }
               }}
             >
@@ -180,9 +193,10 @@ export default function RoomDetailsModal({
               <div className="flex gap-2 pt-1">
                 <button
                   type="submit"
-                  className="flex-1 bg-indigo-600 text-white text-sm font-semibold py-2 rounded-lg hover:bg-indigo-700 transition"
+                  disabled={isEditingSubmit}
+                  className="flex-1 flex justify-center items-center gap-2 bg-indigo-600 text-white text-sm font-semibold py-2 rounded-lg hover:bg-indigo-700 transition disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Save Changes
+                  {isEditingSubmit ? <Loader2 size={16} className="animate-spin" /> : "Save Changes"}
                 </button>
                 <button
                   type="button"
@@ -311,7 +325,10 @@ export default function RoomDetailsModal({
                 </div>
 
                 <div className="flex gap-2">
-                  <button onClick={handleAssignExisting} className="flex-1 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg text-sm transition">Assign</button>
+                  <button onClick={handleAssignExisting} disabled={isAssigningSubmit} className="flex-1 flex justify-center items-center gap-2 bg-indigo-600 hover:bg-indigo-700 text-white font-semibold py-2 rounded-lg text-sm transition disabled:opacity-50 disabled:cursor-not-allowed">
+                    {isAssigningSubmit && <Loader2 size={16} className="animate-spin" />}
+                    Assign
+                  </button>
                   <button onClick={() => setIsAssigning(false)} className="flex-1 bg-slate-200 hover:bg-slate-300 text-slate-700 font-semibold py-2 rounded-lg text-sm transition">Cancel</button>
                 </div>
               </div>

@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { createTenantAction } from "../actions/tenant-action";
-import { X, UserPlus } from "lucide-react";
+import { X, UserPlus, Loader2 } from "lucide-react";
 
 type AddTenantModalProps = {
   isOpen: boolean;
@@ -30,6 +30,7 @@ export default function AddTenantModal({
     preSelectedRoom?.price || 0,
   );
   const [skipCurrentMonth, setSkipCurrentMonth] = useState(false);
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   return (
     <div className="fixed inset-0 bg-slate-900/40 backdrop-blur-sm z-50 flex items-center justify-center p-4">
@@ -60,9 +61,16 @@ export default function AddTenantModal({
         {/* FORM */}
         <div className="p-5">
           <form
-            action={async (formData) => {
-              await createTenantAction(formData);
-              onClose();
+            onSubmit={async (e) => {
+              e.preventDefault();
+              const formData = new FormData(e.currentTarget);
+              setIsSubmitting(true);
+              try {
+                await createTenantAction(formData);
+                onClose();
+              } finally {
+                setIsSubmitting(false);
+              }
             }}
             className="space-y-4"
           >
@@ -171,9 +179,15 @@ export default function AddTenantModal({
 
             <button
               type="submit"
-              className="w-full bg-primary hover:bg-slate-800 text-white font-semibold py-2.5 rounded-md shadow-sm transition mt-2 text-sm"
+              disabled={isSubmitting}
+              className={`w-full flex items-center justify-center gap-2 font-semibold py-2.5 rounded-md shadow-sm transition mt-2 text-sm ${
+                isSubmitting
+                  ? "bg-gray-200 text-gray-500 cursor-not-allowed"
+                  : "bg-primary hover:bg-slate-800 text-white"
+              }`}
             >
-              Register Tenant
+              {isSubmitting && <Loader2 size={16} className="animate-spin" />}
+              {isSubmitting ? "Registering..." : "Register Tenant"}
             </button>
           </form>
         </div>

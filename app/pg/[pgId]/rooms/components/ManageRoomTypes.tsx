@@ -3,7 +3,7 @@
 "use client";
 
 import { useState } from "react";
-import { X, Layers, Edit2, Trash2, Save } from "lucide-react";
+import { X, Layers, Edit2, Trash2, Save, Loader2 } from "lucide-react";
 import {
   updateRoomTypeAction,
   deleteRoomTypeAction,
@@ -34,6 +34,8 @@ export default function ManageRoomTypesModal({
 }: ManageRoomTypesModalProps) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [isAdding, setIsAdding] = useState(false);
+  const [isAddingSubmit, setIsAddingSubmit] = useState(false);
+  const [isEditingSubmit, setIsEditingSubmit] = useState(false);
   const [confirmConfig, setConfirmConfig] = useState<{
     isOpen: boolean;
     title: string;
@@ -106,13 +108,18 @@ export default function ManageRoomTypesModal({
             <div className="bg-slate-50/70 border border-gray-100 rounded-md p-4 shadow-sm mb-4">
               <h3 className="font-bold text-primary mb-3 text-sm">Create New Category</h3>
               <form
-                action={async (formData) => {
+                onSubmit={async (e) => {
+                  e.preventDefault();
+                  const formData = new FormData(e.currentTarget);
+                  setIsAddingSubmit(true);
                   try {
                     await createRoomTypeAction(formData);
                     setIsAdding(false);
                     toast.success("Category created successfully!");
                   } catch (error: any) {
                     toast.error(error.message || "Failed to create category");
+                  } finally {
+                    setIsAddingSubmit(false);
                   }
                 }}
                 className="flex items-end gap-3"
@@ -160,9 +167,10 @@ export default function ManageRoomTypesModal({
                 <div className="flex gap-2">
                   <button
                     type="submit"
-                    className="bg-primary text-white p-2 rounded-md hover:bg-slate-800 transition"
+                    disabled={isAddingSubmit}
+                    className="bg-primary text-white p-2 rounded-md hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                   >
-                    <Save size={18} />
+                    {isAddingSubmit ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                   </button>
                   <button
                     type="button"
@@ -189,19 +197,26 @@ export default function ManageRoomTypesModal({
                 {editingId === type.id ? (
                   /* --- EDITING STATE FORM --- */
                   <form
-                    action={async (formData) => {
-                      const result = await updateRoomTypeAction(formData);
+                    onSubmit={async (e) => {
+                      e.preventDefault();
+                      const formData = new FormData(e.currentTarget);
+                      setIsEditingSubmit(true);
+                      try {
+                        const result = await updateRoomTypeAction(formData);
 
-                      if (result?.success === false || result?.error) {
-                        toast.error(
-                          result.error || "Failed to update category",
-                        );
-                      } else {
-                        setEditingId(null);
-                        toast.success(
-                          "Category updated! Rent changes will take effect from next month.",
-                          { duration: 4000 }
-                        );
+                        if (result?.success === false || result?.error) {
+                          toast.error(
+                            result.error || "Failed to update category",
+                          );
+                        } else {
+                          setEditingId(null);
+                          toast.success(
+                            "Category updated! Rent changes will take effect from next month.",
+                            { duration: 4000 }
+                          );
+                        }
+                      } finally {
+                        setIsEditingSubmit(false);
                       }
                     }}
                     className="flex items-end gap-3"
@@ -248,9 +263,10 @@ export default function ManageRoomTypesModal({
                     <div className="flex gap-2">
                       <button
                         type="submit"
-                        className="bg-primary text-white p-2 rounded-md hover:bg-slate-800 transition"
+                        disabled={isEditingSubmit}
+                        className="bg-primary text-white p-2 rounded-md hover:bg-slate-800 transition disabled:opacity-50 disabled:cursor-not-allowed"
                       >
-                        <Save size={18} />
+                        {isEditingSubmit ? <Loader2 size={18} className="animate-spin" /> : <Save size={18} />}
                       </button>
                       <button
                         type="button"

@@ -149,7 +149,7 @@ export const WhatsApp = {
 
   // CASE 5: Registration Complete
   async sendRegistrationComplete(tenant: any, pg: any, roomName?: string) {
-    return sendTemplate(tenant.phone, "payment_due_reminder_v2", [ //Change it to welcome_v1 once approved
+    return sendTemplate(tenant.phone, "welcome_v1", [
       {
         type: "body",
         parameters: [

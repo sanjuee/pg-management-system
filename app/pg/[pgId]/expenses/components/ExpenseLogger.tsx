@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Plus, Trash2, Tag, ReceiptText, IndianRupee } from "lucide-react";
+import { Plus, Trash2, Tag, ReceiptText, IndianRupee, Loader2 } from "lucide-react";
 import ConfirmModal from "@/app/components/ConfirmModal";
 import {
   addExpenseAction,
@@ -190,9 +190,9 @@ export default function TransactionLogger({
           <button
             type="submit"
             disabled={isSubmitting}
-            className={`w-full flex items-center justify-center gap-2 font-medium py-2 rounded text-sm transition-colors disabled:opacity-50 text-white ${activeTab === "expense" ? "bg-primary hover:bg-slate-800" : "bg-emerald-600 hover:bg-emerald-700"}`}
+            className={`w-full flex items-center justify-center gap-2 font-medium py-2 rounded text-sm transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-white ${activeTab === "expense" ? "bg-primary hover:bg-slate-800" : "bg-emerald-600 hover:bg-emerald-700"}`}
           >
-            <Plus size={16} />
+            {isSubmitting ? <Loader2 size={16} className="animate-spin" /> : <Plus size={16} />}
             {isSubmitting
               ? "Logging..."
               : `Add ${activeTab === "expense" ? "Expense" : "Income"}`}
